@@ -1,17 +1,60 @@
 name: CI
 on: [ workflow_dispatch, push, pull_request ]
 jobs:
-  python:
-    uses: lpenz/ghworkflow-python/.github/workflows/python.yml@v0.8.0
-    with:
-      mypy: true
-      docs: false
-      deb: false
-      coveralls: true
-      codecov: true
-      publish_pypi: false
-      publish_github_release: false
-      publish_packagecloud: false
-    secrets:
-      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
-      PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+  black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.2
+      - uses: piotrpawlaczek/python-blacken@v22.3.0
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.2
+      - uses: actions/setup-python@v5.0.0
+      - uses: py-actions/flake8@v2.3.0
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.2
+      - uses: actions/setup-python@v5.0.0
+      - run: |
+          python -m venv venv
+          source ./venv/bin/activate
+      - run: python -m pip install -r requirements.txt || true
+      - run: python -m pip install mypy
+      - run: mypy
+  pytest:
+    strategy:
+      matrix:
+        python-version: [ "3.9", "3.10", "3.11", "3.12" ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.1.2
+      - uses: actions/setup-python@v5.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: install pytest-cov
+        run: pip install pytest pytest-cov
+      - name: install dependencies
+        run: pip install -e .[test]
+      - name: run pytest --cov
+        run: |
+          set -e
+          pytest --cov=./ --cov-report=xml
+          : .coverage confuses coveralls, remove it
+          rm -f .coverage
+      - name: upload coverage data to coveralls
+        uses: coverallsapp/github-action@v2.2.3
+        with:
+          parallel: true
+          flag-name: python-${{ matrix.python-version }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+  coveralls-finish:
+    if: inputs.coveralls
+    needs: pytest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: coverallsapp/github-action@v2.2.3
+        with:
+          parallel-finished: true
