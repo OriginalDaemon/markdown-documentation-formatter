@@ -1,0 +1,17 @@
+name: CI
+on: [ workflow_dispatch, push, pull_request ]
+jobs:
+  python:
+    uses: lpenz/ghworkflow-python/.github/workflows/python.yml@v0.8.0
+    with:
+      mypy: true
+      docs: false
+      deb: false
+      coveralls: true
+      codecov: true
+      publish_pypi: false
+      publish_github_release: false
+      publish_packagecloud: false
+    secrets:
+      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
