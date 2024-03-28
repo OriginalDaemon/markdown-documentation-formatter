@@ -33,13 +33,14 @@ def getSuite():
         unittest.TestLoader().loadTestsFromTestCase(TestReplaceVariables),
         unittest.TestLoader().loadTestsFromTestCase(TestSanitizeInternalLinks),
         unittest.TestLoader().loadTestsFromTestCase(TestMoveToTargetDirRelative),
-        unittest.TestLoader().loadTestsFromTestCase(TestRenameUniquelyForConfluence)
+        unittest.TestLoader().loadTestsFromTestCase(TestRenameUniquelyForConfluence),
     ]
     return unittest.TestSuite(tests)
 
 
 def runTests():
     import sys
+
     suite = getSuite()
     unittest.TextTestRunner(stream=sys.stderr).run(suite)
 

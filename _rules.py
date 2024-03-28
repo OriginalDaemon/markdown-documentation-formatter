@@ -41,8 +41,10 @@ def DocumentRule(
                        other rules to run first.
     :return: A document rule type.
     """
+
     def _inner(func):
         return _DocumentRule(func, file_filter, pass_index)
+
     return _inner
 
 
@@ -59,14 +61,13 @@ def create_table_of_contents(context: ProcessingContext, document: Document):
     for i, line in enumerate(lines):
         if TABLE_OF_CONTENTS_VARIABLE in line:
             table = []
-            for remaining_line in map(lambda x: x.strip(), lines[i+1:]):
+            for remaining_line in map(lambda x: x.strip(), lines[i + 1 :]):
                 if remaining_line.startswith("#"):
                     stripped = remaining_line.lstrip("#").strip()
                     indent_size = max(0, len(remaining_line) - len(remaining_line.lstrip("#")) - 1)
-                    table.append("{} - {}".format(
-                        "  " * indent_size,
-                        format_markdown_link(stripped, "#{}".format(stripped))
-                    ))
+                    table.append(
+                        "{} - {}".format("  " * indent_size, format_markdown_link(stripped, "#{}".format(stripped)))
+                    )
             line = line.replace(TABLE_OF_CONTENTS_VARIABLE, "\n".join(table))
         processed.append(line)
     document.contents = "\n".join(processed)
