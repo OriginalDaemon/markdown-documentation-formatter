@@ -12,12 +12,18 @@ def _process_path_arg(path, arg_name, expect_exists=True, expect_dir=False):
 
     path = pathlib.Path(path)
     if expect_exists and not path.exists():
-        raise argparse.ArgumentTypeError("{}: path doesn't exist: {}".format(arg_name, path))
+        raise argparse.ArgumentTypeError(
+            "{}: path doesn't exist: {}".format(arg_name, path)
+        )
     if path.exists() and expect_dir != path.is_dir():
         if expect_dir:
-            return argparse.ArgumentTypeError("{}: directory expected, got a file: {}".format(arg_name, path))
+            return argparse.ArgumentTypeError(
+                "{}: directory expected, got a file: {}".format(arg_name, path)
+            )
         else:
-            return argparse.ArgumentTypeError("{}: file expected, got a directory: {}".format(arg_name, path))
+            return argparse.ArgumentTypeError(
+                "{}: file expected, got a directory: {}".format(arg_name, path)
+            )
     return path
 
 
@@ -36,25 +42,42 @@ def parseArgs(argv: list | None = None):
                - input file path
                - output path
     """
-    parser = argparse.ArgumentParser(description="Convert basic obj/collada/fbx/usd meshes to Gr2")
-    parser.add_argument(
-        "--input", "-i", required=True, help="Path to the directory containing the docs to prep.",
-        type=lambda x: _process_path_arg(x, "input", True, True)
+    parser = argparse.ArgumentParser(
+        description="Convert basic obj/collada/fbx/usd meshes to Gr2"
     )
     parser.add_argument(
-        "--output", "-o", required=True, help="Directory to output the prepared documentation to.",
-        type=lambda x: _process_path_arg(x, "output", False, True)
+        "--input",
+        "-i",
+        required=True,
+        help="Path to the directory containing the docs to prep.",
+        type=lambda x: _process_path_arg(x, "input", True, True),
     )
     parser.add_argument(
-        "--style", "-s", default=DeploymentStyle.CONFLUENCE, help="The style of deployment to do.",
-        type=_deploymentStyle
+        "--output",
+        "-o",
+        required=True,
+        help="Directory to output the prepared documentation to.",
+        type=lambda x: _process_path_arg(x, "output", False, True),
     )
     parser.add_argument(
-        "--consts", "-c", default=None, help="The location of the consts file.",
-        type=lambda x: _process_path_arg(x, "consts", True, False)
+        "--style",
+        "-s",
+        default=DeploymentStyle.CONFLUENCE,
+        help="The style of deployment to do.",
+        type=_deploymentStyle,
     )
     parser.add_argument(
-        "--version", "-v", default="", help="The name to use for the version of the documentation."
+        "--consts",
+        "-c",
+        default=None,
+        help="The location of the consts file.",
+        type=lambda x: _process_path_arg(x, "consts", True, False),
+    )
+    parser.add_argument(
+        "--version",
+        "-v",
+        default="",
+        help="The name to use for the version of the documentation.",
     )
     args = parser.parse_args(argv)
 

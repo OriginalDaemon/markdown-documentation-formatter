@@ -10,7 +10,7 @@ class ProcessingSettings(object):
         target_directory,
         version_name: str,
         rules: list = None,
-        consts: Dict[str, str] = None
+        consts: Dict[str, str] = None,
     ):
         """
         Settings to use when processing a document.
