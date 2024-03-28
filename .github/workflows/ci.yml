@@ -1,13 +1,32 @@
 name: CI
 on: [ workflow_dispatch, push, pull_request ]
 jobs:
-  black:
+  black_check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.1.2
       - uses: psf/black@stable
         with:
-          options: "--check --verbose"
+          options: "--check --diff"
+  black_run:
+    runs-on: ubuntu-latest
+    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
+    needs: [black_check]
+    steps:
+      - uses: psf/black@stable
+        with:
+          options: "--verbose"
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "Format Python code with psf/black push"
+          commit-message: "[auto] - Format Python code with psf/black"
+          body: |
+            There appear to be some python formatting errors in ${{ github.sha }}. This pull request
+            uses the [psf/black](https://github.com/psf/black) formatter to fix these issues.
+          base: ${{ github.head_ref }} # Creates pull request onto pull request or commit branch
+          branch: actions/black
   flake8:
     runs-on: ubuntu-latest
     steps:
@@ -33,7 +52,7 @@ jobs:
   pytest:
     strategy:
       matrix:
-        python-version: [ "3.9", "3.10", "3.11", "3.12" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.1.2
