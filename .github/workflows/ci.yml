@@ -5,7 +5,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.1.2
-      - uses: piotrpawlaczek/python-blacken@v22.3.0
+      - uses: psf/black@stable
+        with:
+          options: "--check --verbose"
   flake8:
     runs-on: ubuntu-latest
     steps:
@@ -22,7 +24,12 @@ jobs:
           source ./venv/bin/activate
       - run: python -m pip install -r requirements.txt || true
       - run: python -m pip install mypy
-      - run: mypy
+      - name: Run mypy
+        uses: sasanquaneuf/mypy-github-action@releases/v1
+        with:
+          checkName: 'mypy'   # NOTE: this needs to be the same as the job name
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   pytest:
     strategy:
       matrix:
