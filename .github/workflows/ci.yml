@@ -10,7 +10,7 @@ jobs:
           options: "--check --diff"
   black_run:
     runs-on: ubuntu-latest
-    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
+    if: ${{ always() && contains(join(needs.*.result, ','), 'failure') }}
     needs: [black_check]
     steps:
       - uses: psf/black@stable
