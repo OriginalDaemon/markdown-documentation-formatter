@@ -35,6 +35,8 @@ jobs:
       - uses: actions/checkout@v4.1.2
       - uses: actions/setup-python@v5.0.0
       - uses: py-actions/flake8@v2.3.0
+        with:
+          args: "--max-line-length=120"
   mypy:
     runs-on: ubuntu-latest
     steps:
