@@ -5,12 +5,7 @@ from typing import overload, Dict
 
 class ProcessingSettings(object):
     def __init__(
-        self,
-        root_directory,
-        target_directory,
-        version_name: str,
-        rules: list = None,
-        consts: Dict[str, str] = None
+        self, root_directory, target_directory, version_name: str, rules: list = None, consts: Dict[str, str] = None
     ):
         """
         Settings to use when processing a document.

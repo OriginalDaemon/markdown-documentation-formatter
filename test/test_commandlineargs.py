@@ -21,6 +21,7 @@ def getSuite():
 
 def runTests():
     import sys
+
     suite = getSuite()
     unittest.TextTestRunner(stream=sys.stderr).run(suite)
 

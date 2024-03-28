@@ -38,24 +38,34 @@ def parseArgs(argv: list | None = None):
     """
     parser = argparse.ArgumentParser(description="Convert basic obj/collada/fbx/usd meshes to Gr2")
     parser.add_argument(
-        "--input", "-i", required=True, help="Path to the directory containing the docs to prep.",
-        type=lambda x: _process_path_arg(x, "input", True, True)
+        "--input",
+        "-i",
+        required=True,
+        help="Path to the directory containing the docs to prep.",
+        type=lambda x: _process_path_arg(x, "input", True, True),
     )
     parser.add_argument(
-        "--output", "-o", required=True, help="Directory to output the prepared documentation to.",
-        type=lambda x: _process_path_arg(x, "output", False, True)
+        "--output",
+        "-o",
+        required=True,
+        help="Directory to output the prepared documentation to.",
+        type=lambda x: _process_path_arg(x, "output", False, True),
     )
     parser.add_argument(
-        "--style", "-s", default=DeploymentStyle.CONFLUENCE, help="The style of deployment to do.",
-        type=_deploymentStyle
+        "--style",
+        "-s",
+        default=DeploymentStyle.CONFLUENCE,
+        help="The style of deployment to do.",
+        type=_deploymentStyle,
     )
     parser.add_argument(
-        "--consts", "-c", default=None, help="The location of the consts file.",
-        type=lambda x: _process_path_arg(x, "consts", True, False)
+        "--consts",
+        "-c",
+        default=None,
+        help="The location of the consts file.",
+        type=lambda x: _process_path_arg(x, "consts", True, False),
     )
-    parser.add_argument(
-        "--version", "-v", default="", help="The name to use for the version of the documentation."
-    )
+    parser.add_argument("--version", "-v", default="", help="The name to use for the version of the documentation.")
     args = parser.parse_args(argv)
 
     consts = {}
