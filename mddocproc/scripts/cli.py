@@ -74,12 +74,12 @@ def parse_args(argv: list | None = None):
     return args.input, args.output, rules.StandardRulesTable[args.style], consts, args.version
 
 
-def main():
+def main():  # pragma: no cover
     """
     Takes a folder of documentation and prepares it for deployment in various ways.
     """
     return process_docs(*parse_args(sys.argv[1:]))
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     sys.exit(0 if main() else 1)
