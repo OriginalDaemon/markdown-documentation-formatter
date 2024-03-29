@@ -21,7 +21,7 @@ class TestRenameUniquelyForConfluence(unittest.TestCase):
     pass
 
 
-def getSuite():
+def get_suite():
     tests = [
         unittest.TestLoader().loadTestsFromTestCase(TestTableOfContents),
         unittest.TestLoader().loadTestsFromTestCase(TestReplaceVariables),
@@ -32,10 +32,10 @@ def getSuite():
     return unittest.TestSuite(tests)
 
 
-def runTests():
+def run_tests():
     import sys
 
-    suite = getSuite()
+    suite = get_suite()
     unittest.TextTestRunner(stream=sys.stderr).run(suite)
 
 
