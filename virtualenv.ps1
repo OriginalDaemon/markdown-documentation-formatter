@@ -2,8 +2,8 @@
 # windows machine and create a virtualenv from it.
 
 $REQUIRED_MAJOR_VERSION = 3
-$REQUIRED_MINOR_MIN = 8
-$REQUIRED_MINOR_MAX = 11
+$REQUIRED_MINOR_MIN = 10
+$REQUIRED_MINOR_MAX = 12
 $BITNESS = "64"
 $VENV_NAME = 'venv'
 

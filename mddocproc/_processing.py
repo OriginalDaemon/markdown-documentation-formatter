@@ -35,12 +35,6 @@ class ProcessingContext(object):
         self.settings = settings
         self.documents = {}
 
-    @overload
-    def add_document(self, document: Path): ...
-
-    @overload
-    def add_document(self, document: Path): ...
-
     def add_document(self, document: Document | Path):
         """
         Add a document to be processed.
