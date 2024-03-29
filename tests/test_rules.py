@@ -1,8 +1,4 @@
-import os
 import unittest
-from .. import _rules as rules
-from .. import _processing as processing
-from .. import _document as document
 
 
 class TestTableOfContents(unittest.TestCase):
