@@ -36,12 +36,10 @@ class ProcessingContext(object):
         self.documents = {}
 
     @overload
-    def add_document(self, document: Path):
-        ...
+    def add_document(self, document: Path): ...
 
     @overload
-    def add_document(self, document: Path):
-        ...
+    def add_document(self, document: Path): ...
 
     def add_document(self, document: Document | Path):
         """
@@ -65,9 +63,7 @@ class ProcessingContext(object):
             document.save()
 
 
-def process_docs(
-    input_dir: Path, output_dir: Path, rule_set: list, consts: Dict[str, str], version_name: str
-):
+def process_docs(input_dir: Path, output_dir: Path, rule_set: list, consts: Dict[str, str], version_name: str):
     settings = ProcessingSettings(input_dir, output_dir, version_name, rule_set, consts)
     context = ProcessingContext(settings)
     for file_path in input_dir.glob("*.*"):
