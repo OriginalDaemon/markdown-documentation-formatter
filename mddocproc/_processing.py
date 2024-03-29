@@ -1,11 +1,12 @@
-from ._consts import PASSES
+from ._consts import Passes
 from ._document import Document, load_document
 from typing import overload, Dict
+from pathlib import Path
 
 
 class ProcessingSettings(object):
     def __init__(
-        self, root_directory, target_directory, version_name: str, rules: list = None, consts: Dict[str, str] = None
+        self, root_directory, target_directory, version_name: str, rule_set: list = None, consts: Dict[str, str] = None
     ):
         """
         Settings to use when processing a document.
@@ -14,12 +15,12 @@ class ProcessingSettings(object):
                                  the same as the root directory for in-place processing.
         :param version_name: The name of the version of the documentation, mostly used for confluence naming. Usually
                              develop or main.
-        :param rules: The rules to run on each doc.
+        :param rule_set: The rules to run on each doc.
         :param consts: The consts to use for mass replacement throughout the docs. Can be None for no consts.
         """
         self.root_directory = root_directory
         self.target_directory = target_directory
-        self.rules = rules or list()
+        self.rules = rule_set or list()
         self.consts = consts or dict()
         self.version_name = version_name
 
@@ -34,25 +35,41 @@ class ProcessingContext(object):
         self.settings = settings
         self.documents = {}
 
-    @overload(str)
-    def add_document(self, path: str):
-        """
-        Loads a document at a given file-path.
-        :param path: the path to the document to add.
-        """
-        self.add_document(load_document(path))
+    @overload
+    def add_document(self, document: Path):
+        ...
 
-    def add_document(self, document: Document):
+    @overload
+    def add_document(self, document: Path):
+        ...
+
+    def add_document(self, document: Document | Path):
         """
         Add a document to be processed.
         :document: The document to add.
         """
-        self.documents[document.input_path] = document
+        if isinstance(document, Path):
+            document = load_document(document)
+            self.documents[document.input_path] = document
+        elif isinstance(document, Document):
+            self.documents[document.input_path] = document
+        else:
+            raise TypeError(f"Expected a Document or Path, got a {type(document).__name__}.")
 
     def run(self):
-        for i in range(len(PASSES)):
+        for i in range(len(Passes)):
             for document in self.documents.values():
                 for rules in filter(lambda x: x.pass_index == i, self.settings.rules):
                     rules(self, document)
         for document in self.documents.values():
             document.save()
+
+
+def process_docs(
+    input_dir: Path, output_dir: Path, rule_set: list, consts: Dict[str, str], version_name: str
+):
+    settings = ProcessingSettings(input_dir, output_dir, version_name, rule_set, consts)
+    context = ProcessingContext(settings)
+    for file_path in input_dir.glob("*.*"):
+        context.add_document(file_path)
+    context.run()

@@ -3,21 +3,21 @@ import functools
 
 from typing import Callable
 from fnmatch import fnmatch
-from ._consts import PASSES
+from ._consts import Passes, DeploymentStyle
 from ._processing import ProcessingContext
 from ._document import Document
 from ._utils import format_markdown_link, load_consts_from_py_file
 
 
 class _DocumentRule(object):
-    def __init__(self, function: Callable[[ProcessingContext, Document], None], file_filter: str, pass_index: PASSES):
+    def __init__(self, function: Callable[[ProcessingContext, Document], None], file_filter: str, pass_index: Passes):
         """
         Function decorator to create a document processor function. These functions will be called by a
         ProcessingContext to apply augmentations to a file that is loaded in memory.
         :param function: The function being decorated as a document processor.
         :param file_filter: fnmatch style file filter.
-        :param pass_index: The index of the "pass" of the documents in which to operate. Sometimes rules need to wait
-                           for other rules to run first.
+        :param pass_index: The index of the "pass" of the documents in which to operate. Sometimes rule_set need to wait
+                           for other rule_set to run first.
         """
         self.function = function
         self.file_filter = file_filter
@@ -32,13 +32,13 @@ class _DocumentRule(object):
 
 
 def DocumentRule(
-    file_filter: str = "*.*", pass_index: PASSES = PASSES.FIRST
+    file_filter: str = "*.*", pass_index: Passes = Passes.FIRST
 ) -> Callable[[Callable[[ProcessingContext, Document], None]], _DocumentRule]:
     """
     A wrapper to make simple DocumentRules from functions.
     :param file_filter: fnmatch style file filter string.
-    :param pass_index: The index of the "pass" of the documents in which to operate. Sometimes rules need to wait for
-                       other rules to run first.
+    :param pass_index: The index of the "pass" of the documents in which to operate. Sometimes rule_set need to wait for
+                       other rule_set to run first.
     :return: A document rule type.
     """
 
@@ -134,3 +134,14 @@ def rename_uniquely_for_confluence(context: ProcessingContext, document: Documen
     else:
         parts = parts[:-1] + [" - ".join(parts) + ".md"]
     context.target = os.path.join(context.settings.target_directory, *parts)
+
+
+StandardRulesTable = {
+    DeploymentStyle.GITHUB: [santize_internal_links, move_to_target_dir_relative],
+    DeploymentStyle.CONFLUENCE: [
+        create_table_of_contents,
+        replace_variables,
+        santize_internal_links,
+        rename_uniquely_for_confluence,
+    ],
+}

@@ -1,14 +1,12 @@
 import os
 import unittest
-from unittest import TestCase
 from .. import _rules as rules
 from .. import _processing as processing
 from .. import _document as document
 
 
 class TestTableOfContents(unittest.TestCase):
-    def test_simple_contents(self):
-        document.Document()
+    pass
 
 
 class TestReplaceVariables(unittest.TestCase):

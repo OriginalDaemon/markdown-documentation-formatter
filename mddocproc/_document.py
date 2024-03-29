@@ -6,7 +6,7 @@ from ._utils import make_directory
 class Document(object):
     def __init__(self, input_path: str, data: str = ""):
         """
-        Holds a file, referenced by path, and it's contents, for manipulation by document rules.
+        Holds a file, referenced by path, and it's contents, for manipulation by document rule_set.
         :param input_path: The path to the input file.
         :type input_path:
         """
