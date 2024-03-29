@@ -77,10 +77,10 @@ jobs:
           flag-name: python-${{ matrix.python-version }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
   coveralls-finish:
-    if: inputs.coveralls
     needs: pytest
     runs-on: ubuntu-latest
     steps:
       - uses: coverallsapp/github-action@v2.2.3
         with:
           parallel-finished: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
