@@ -69,7 +69,7 @@ jobs:
       - name: install dependencies
         run: pip install -e .[test]
       - name: run pytest --cov
-        run: pytest --cov-config=.coveragerc --cov=mddocproc --cov-report=xml
+        run: pytest --cov=mddocproc --cov-report=xml
       - name: upload coverage data to coveralls
         uses: coverallsapp/github-action@v2.2.3
         with:
