@@ -37,8 +37,6 @@ if ($versionArgumentToUse -eq $null) {
     py $versionArgumentToUse -m virtualenv $VENV_NAME
     $activate_command = '.\' + $VENV_NAME + '\Scripts\activate.ps1'
     Invoke-Expression $activate_command
-    pip install -r $PSScriptRoot\requirements.txt --no-cache-dir
-    pip install -r $PSScriptRoot\requirements-dev.txt --no-cache-dir
-    pip install -e .
+    pip install -e .[test]
     exit 0
 }
