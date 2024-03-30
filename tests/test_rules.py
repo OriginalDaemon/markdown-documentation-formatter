@@ -166,10 +166,7 @@ class TestApplyMacros(unittest.TestCase):
         self.assertEqual("Example macro ${hello()}", doc.contents)
 
     def test_no_macros(self):
-        settings = ProcessingSettings(
-            const_macros={"hello": "world"},
-            function_macros={"hello2": lambda x: ""}
-        )
+        settings = ProcessingSettings(const_macros={"hello": "world"}, function_macros={"hello2": lambda x: ""})
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example without any macros in it.")
         rules.apply_macros(context, doc)
