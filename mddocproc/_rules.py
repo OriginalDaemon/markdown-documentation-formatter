@@ -255,6 +255,7 @@ def santize_internal_links(context: ProcessingContext, document: Document):
     :param document: The document being processed.
     """
     from ._utils import format_markdown_link
+
     pointer = 0
     while pointer < len(document.contents):
         success, start, pointer, text, path, section = _get_next_link_match(document, pointer)
