@@ -98,7 +98,7 @@ def _create_toc_from_sections(lines):
         if line.startswith("#"):
             indent_size = _calculate_toc_indent_for_heading(line)
             stripped = line.lstrip("#").strip()
-            table_entries.append((indent_size, " - {}".format(format_markdown_link(stripped, "#{}".format(stripped)))))
+            table_entries.append((indent_size, " - {}".format(format_markdown_link(stripped, "", stripped))))
 
     # Use smallest_indent to shift entire toc leftwards as much as we can...
     smallest_indent = min(x[0] for x in table_entries) if table_entries else 0
@@ -138,8 +138,7 @@ def _replace_const_macros(context: ProcessingContext, document: Document):
             pointer = start
         elif macro is None and context.settings.function_macros.get(macroName, None) is not None:
             logger.exception(
-                f"Exception encountered trying to resolve {match.group(0)} as {macroName} is a function, not a "
-                f"const."
+                f"Exception encountered trying to resolve {match.group(0)} as {macroName} is a function, not a const."
             )
             pointer = end
         else:
@@ -235,7 +234,7 @@ def _form_relative_link(source_document: Document, linked_document: Document) ->
     ).replace("\\", "/")
 
 
-def _get_subsection_part(section: str, linked_document: Document):
+def _process_section_reference(section: str, linked_document: Document):
     if section:
         # find the actual linked section and recreate teh section reference.
         regex_section_part = unquote(section).replace("-", "[ -]")
@@ -245,24 +244,25 @@ def _get_subsection_part(section: str, linked_document: Document):
             if result:
                 section = result.group(1)
                 break
-    return f"#{section}" if section else ""
+    return section
 
 
 @document_rule("*.md")
 def santize_internal_links(context: ProcessingContext, document: Document):
     """
-    Find any "internal" markdown links and make sure they use the form ()[<path to item>]
+    Find any "internal" markdown links and make sure they use the form ()[<relative_path to item>]
     :param context: The ProcessingContext.
     :param document: The document being processed.
     """
+    from ._utils import format_markdown_link
     pointer = 0
     while pointer < len(document.contents):
-        success, start, pointer, text, link, section = _get_next_link_match(document, pointer)
-        linked_document = _get_document_from_link(context, document, unquote(link))
+        success, start, pointer, text, path, section = _get_next_link_match(document, pointer)
+        linked_document = _get_document_from_link(context, document, unquote(path))
         if linked_document is not None:
-            link = _form_relative_link(document, linked_document)
-            section_part = _get_subsection_part(section, linked_document)
-            reformatted_link = f"[{text}](<{link}{section_part}>)"
+            path = _form_relative_link(document, linked_document)
+            section = _process_section_reference(section, linked_document)
+            reformatted_link = format_markdown_link(text, path, section)
             document.contents = _replace_span(document, start, pointer, reformatted_link)
 
 

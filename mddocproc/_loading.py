@@ -12,7 +12,7 @@ def load_macros_from_py_file(python_file_path: Path) -> Tuple[Dict[str, str], Di
     Import a python file and load any macros defined within it. Consts are expected to be simple strings, and any
     functions are expected to return a string.
     Private macros, a.k.a. those with a name starting _, will be skipped.
-    :param python_file_path: The path to the python file where the macros are defined.
+    :param python_file_path: The relative_path to the python file where the macros are defined.
     :return: Dictionary of const names and their values and a dictionary of function macros.
     """
     const_macros: Dict[str, str] = {}
@@ -38,7 +38,7 @@ def load_custom_rules_from_py_file(python_file_path: Path) -> List[DocumentRule]
     """
     Loads a list of DocumentRules from a given python module. Rules are skipped if they are private; a.k.a. the rule
     name starts with _.
-    :param python_file_path: The path to the python module where rules are defined.
+    :param python_file_path: The relative_path to the python module where rules are defined.
     """
     rules: List[DocumentRule] = []
     if not python_file_path.exists() or not python_file_path.is_file():

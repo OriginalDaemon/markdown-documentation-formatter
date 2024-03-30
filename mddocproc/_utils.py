@@ -3,29 +3,15 @@ import errno
 import urllib.parse
 
 
-def format_markdown_link(link_name, url):
+def format_markdown_link(text: str, relative_path: str, section: str | None = None):
     """
-    :param link_name: The name / string to use for the link.
-    :param url: The url for the link.
-    :return: A markdown link, formatted to work with obsidian and github.
+    Creates a well formatted markdown link.
+    :param text: The text to display as the markdown link.
+    :param relative_path: The relative path to the file you want to link.
+    :param section: If provided, this adds the subsection #... part so you can link to a subsection of another file.
     """
-    return "[{}](<{}>)".format(link_name, urllib.parse.unquote(url))
-
-
-def reformat_markdown_link(markdown_link):
-    """
-    Given a markdown link in the form [string](something/something%20else/a%20file.md), this will make sure it's
-    formatted as [string](<something/something else/a file.md>) instead. If the link is already in this form, this
-    function has no effect.
-    :param markdown_link: The markdown link to reformat.
-    :return: The reformatted markdown link.
-    """
-    link_name = markdown_link.split("[")[1].split("]")[0]
-    url = markdown_link.split("(")[1].split(")")[0]
-    if not url.startswith("<"):
-        return format_markdown_link(link_name, url)
-    else:
-        return markdown_link
+    section_part = f"#{section}" if section else ""
+    return f"[{text}](<{relative_path}{section_part}>)"
 
 
 def make_directory(directory):

@@ -138,7 +138,19 @@ class TestApplyMacros(unittest.TestCase):
             rules.apply_macros(context, doc)
         self.assertEqual("Example macro ${hello(a)}", doc.contents)
 
-    def test_function_is_not_a_function(self):
+    def test_const_is_a_function(self):
+        settings = ProcessingSettings(
+            function_macros={
+                "hello": lambda: "",
+            }
+        )
+        context = ProcessingContext(settings)
+        doc = Document(Path("test.md"), "Example macro ${hello}")
+        with self.assertLogs("mddocproc", level="ERROR"):
+            rules.apply_macros(context, doc)
+        self.assertEqual("Example macro ${hello}", doc.contents)
+
+    def test_function_is_a_const(self):
         settings = ProcessingSettings(
             const_macros={
                 "hello": "world",

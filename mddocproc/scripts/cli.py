@@ -22,7 +22,7 @@ def _process_path_arg(path, arg_name, expect_exists=True, expect_dir=False):
 
     path = pathlib.Path(path)
     if expect_exists and not path.exists():
-        raise argparse.ArgumentTypeError("{}: path doesn't exist: {}".format(arg_name, path))
+        raise argparse.ArgumentTypeError("{}: relative_path doesn't exist: {}".format(arg_name, path))
     if path.exists() and expect_dir != path.is_dir():
         if expect_dir:
             raise argparse.ArgumentTypeError("{}: directory expected, got a file: {}".format(arg_name, path))
@@ -45,8 +45,8 @@ def parse_args(
     Parse the command line args.
     :param argv: argument list from the command line.
     :return: tuple of the parsed args:
-               - input file path
-               - output path
+               - input file relative_path
+               - output relative_path
     """
     parser = argparse.ArgumentParser(description="Convert basic obj/collada/fbx/usd meshes to Gr2")
     parser.add_argument(
