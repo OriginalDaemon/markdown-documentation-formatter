@@ -1,6 +1,5 @@
 import os
 import errno
-import urllib.parse
 
 
 def format_markdown_link(text: str, relative_path: str, section: str | None = None):
