@@ -57,43 +57,35 @@ class TestTableOfContents(unittest.TestCase):
 
 class TestApplyMacros(unittest.TestCase):
     def test_single_const_macro(self):
-        settings = ProcessingSettings(macros={"hello": "world"})
+        settings = ProcessingSettings(const_macros={"hello": "world"})
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello}")
         rules.apply_macros(context, doc)
         self.assertEqual("Example macro world", doc.contents)
 
     def test_multiple_const_macros(self):
-        settings = ProcessingSettings(macros={"hello": "world", "hello2": "world2"})
+        settings = ProcessingSettings(const_macros={"hello": "world", "hello2": "world2"})
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello} and another ${hello2}")
         rules.apply_macros(context, doc)
         self.assertEqual("Example macro world and another world2", doc.contents)
 
     def test_single_function_macro_no_args(self):
-        settings = ProcessingSettings(
-            macros={
-                "hello": lambda: "world",
-            }
-        )
+        settings = ProcessingSettings(function_macros={"hello": lambda: "world"})
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello()}")
         rules.apply_macros(context, doc)
         self.assertEqual("Example macro world", doc.contents)
 
     def test_multiple_function_macros_no_args(self):
-        settings = ProcessingSettings(macros={"hello": lambda: "world", "hello2": lambda: "world2"})
+        settings = ProcessingSettings(function_macros={"hello": lambda: "world", "hello2": lambda: "world2"})
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello()} and another ${hello2()}")
         rules.apply_macros(context, doc)
         self.assertEqual("Example macro world and another world2", doc.contents)
 
     def test_single_function_macro_with_args(self):
-        settings = ProcessingSettings(
-            macros={
-                "hello": lambda x, y: f"x={x} y={y}",
-            }
-        )
+        settings = ProcessingSettings(function_macros={"hello": lambda x, y: f"x={x} y={y}"})
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello(a, b)}")
         rules.apply_macros(context, doc)
@@ -101,7 +93,7 @@ class TestApplyMacros(unittest.TestCase):
 
     def test_multiple_function_macros_with_args(self):
         settings = ProcessingSettings(
-            macros={
+            function_macros={
                 "hello": lambda x, y: f"x={x} y={y}",
                 "hello2": lambda x, y, z: f"x={x} y={y} z={z}",
             }
@@ -112,7 +104,7 @@ class TestApplyMacros(unittest.TestCase):
         self.assertEqual("Example macro x=a y=b and another x=c y=d z=e", doc.contents)
 
     def test_const_not_defined(self):
-        settings = ProcessingSettings(macros={})
+        settings = ProcessingSettings()
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello}")
         with self.assertLogs("mddocproc", level="WARNING"):
@@ -120,7 +112,7 @@ class TestApplyMacros(unittest.TestCase):
         self.assertEqual("Example macro ${hello}", doc.contents)
 
     def test_function_not_defined(self):
-        settings = ProcessingSettings(macros={})
+        settings = ProcessingSettings()
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello()}")
         with self.assertLogs("mddocproc", level="WARNING"):
@@ -128,7 +120,7 @@ class TestApplyMacros(unittest.TestCase):
         self.assertEqual("Example macro ${hello()}", doc.contents)
 
     def test_function_with_const(self):
-        settings = ProcessingSettings(macros={"hello": lambda x: f"x={x}", "hello2": "world2"})
+        settings = ProcessingSettings(function_macros={"hello": lambda x: f"x={x}"}, const_macros={"hello2": "world2"})
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello(${hello2})}")
         rules.apply_macros(context, doc)
@@ -136,7 +128,7 @@ class TestApplyMacros(unittest.TestCase):
 
     def test_function_wrong_arg_count(self):
         settings = ProcessingSettings(
-            macros={
+            function_macros={
                 "hello": lambda x, y: "world",
             }
         )
@@ -148,7 +140,7 @@ class TestApplyMacros(unittest.TestCase):
 
     def test_function_is_not_a_function(self):
         settings = ProcessingSettings(
-            macros={
+            const_macros={
                 "hello": "world",
             }
         )
@@ -163,7 +155,7 @@ class TestApplyMacros(unittest.TestCase):
             raise RuntimeError("Example error")
 
         settings = ProcessingSettings(
-            macros={
+            function_macros={
                 "hello": _raise_exception,
             }
         )
@@ -175,10 +167,8 @@ class TestApplyMacros(unittest.TestCase):
 
     def test_no_macros(self):
         settings = ProcessingSettings(
-            macros={
-                "hello": "world",
-                "hello2": lambda x: "",
-            }
+            const_macros={"hello": "world"},
+            function_macros={"hello2": lambda x: ""}
         )
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example without any macros in it.")
@@ -187,7 +177,8 @@ class TestApplyMacros(unittest.TestCase):
 
 
 class TestSanitizeInternalLinks(unittest.TestCase):
-    def _create_test_data(self, link):
+    @staticmethod
+    def _create_test_data(link):
         doc_root = Path(os.path.join(os.path.dirname(__file__), "data", "docs"))
         context = ProcessingContext(ProcessingSettings(doc_root))
         context.add_document(Document(doc_root / Path("sub dir/relative - file.md"), "### sub - section"))

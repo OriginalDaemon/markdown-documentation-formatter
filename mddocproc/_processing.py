@@ -16,7 +16,8 @@ class ProcessingSettings(object):
         target_directory: Path = Path("./"),
         version_name: str = "",
         rule_set: List[DocumentRule] | None = None,
-        macros: Dict[str, str | FunctionMacro] | None = None,
+        const_macros: Dict[str, str] | None = None,
+        function_macros: Dict[str, FunctionMacro] | None = None,
     ):
         """
         Settings to use when processing a document.
@@ -26,12 +27,14 @@ class ProcessingSettings(object):
         :param version_name: The name of the version of the documentation, mostly used for confluence naming. Usually
                              develop or main.
         :param rule_set: The rules to run on each doc.
-        :param macros: The macros to use for mass replacement throughout the docs. Can be None for no macros.
+        :param const_macros: A table of const value macros.
+        :param function_macros: A table of function macros which take 0 or more strings as args and returns a string.
         """
         self.root_directory = root_directory
         self.target_directory = target_directory
         self.rules = rule_set or list()
-        self.macros = macros or dict()
+        self.const_macros: Dict[str, str] = const_macros or dict()
+        self.function_macros: Dict[str, FunctionMacro] = function_macros or dict()
         self.version_name = version_name
 
 
@@ -77,9 +80,26 @@ class ProcessingContext(object):
 
 
 def process_docs(
-    input_dir: Path, output_dir: Path, rule_set: list, macros: Dict[str, FunctionMacro], version_name: str
+    input_dir: Path,
+    output_dir: Path,
+    rule_set: list,
+    const_macros: Dict[str, str] | None = None,
+    function_macros: Dict[str, FunctionMacro] | None = None,
+    version_name: str = "",
 ):
-    settings = ProcessingSettings(input_dir, output_dir, version_name, rule_set, macros)
+    """
+    Process all the documentation in the input_dir and save the results to the output_dir. Make the input & output dirs
+    the same to overwrite the documentation in place.
+    :param input_dir: The root of the documentation tree.
+    :param output_dir: The target_path directory under which to put the newly processed documents - can be
+                             the same as the root directory for in-place processing.
+    :param version_name: The name of the version of the documentation, mostly used for confluence naming. Usually
+                         develop or main.
+    :param rule_set: The rules to run on each doc.
+    :param const_macros: A table of const value macros.
+    :param function_macros: A table of function macros which take 0 or more strings as args and returns a string.
+    """
+    settings = ProcessingSettings(input_dir, output_dir, version_name, rule_set, const_macros, function_macros)
     context = ProcessingContext(settings)
     for file_path in input_dir.glob("*.*"):
         context.add_document(file_path)

@@ -40,7 +40,7 @@ def _deploymentStyle(value):
 
 def parse_args(
     argv: list | None = None,
-) -> Tuple[pathlib.Path, pathlib.Path, List[DocumentRule], Dict[str, FunctionMacro], str, bool]:
+) -> Tuple[pathlib.Path, pathlib.Path, List[DocumentRule], Dict[str, str], Dict[str, FunctionMacro], str, bool]:
     """
     Parse the command line args.
     :param argv: argument list from the command line.
@@ -97,22 +97,23 @@ def parse_args(
     if args.rules is not None:
         rule_set.extend(load_custom_rules_from_py_file(args.rules))
 
-    macros = {}
+    const_macros: Dict[str, str] = {}
+    function_macros: Dict[str, FunctionMacro] = {}
     if args.macros is not None:
-        macros = load_macros_from_py_file(args.macros)
+        const_macros, function_macros = load_macros_from_py_file(args.macros)
 
-    return args.input, args.output, rule_set, macros, args.version, args.verbose
+    return args.input, args.output, rule_set, const_macros, function_macros, args.version, args.verbose
 
 
 def main():  # pragma: no cover
     """
     Takes a folder of documentation and prepares it for deployment in various ways.
     """
-    input_dir, output_dir, rule_set, macros, version_name, verbose = parse_args(sys.argv[1:])
+    input_dir, output_dir, rule_set, const_macros, function_macros, version_name, verbose = parse_args(sys.argv[1:])
     logging.basicConfig(
         format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.DEBUG if verbose else logging.INFO
     )
-    return process_docs(input_dir, output_dir, rule_set, macros, version_name)
+    return process_docs(input_dir, output_dir, rule_set, const_macros, function_macros, version_name)
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -9,7 +9,7 @@ import functools
 from pathlib import Path
 from fnmatch import fnmatch
 from urllib.parse import unquote
-from typing import Callable, Tuple, List, TYPE_CHECKING
+from typing import Callable, Tuple, List, Dict, TYPE_CHECKING
 from ._consts import (
     Passes,
     DeploymentStyle,
@@ -48,7 +48,7 @@ class DocumentRule(object):
         functools.update_wrapper(self, self.function)
 
     def _applies(self, document: Document):
-        return fnmatch(document.input_path, self.file_filter)
+        return fnmatch(str(document.input_path.resolve()), self.file_filter)
 
     def __call__(self, context: ProcessingContext, document: Document):
         if self._applies(document):
@@ -132,11 +132,11 @@ def _replace_const_macros(context: ProcessingContext, document: Document):
         if not match:
             break
         macroName = match.group(1)
-        macro = context.settings.macros.get(macroName, None)
-        if macro is not None and not callable(macro):
-            document.contents = _replace_span(document, start, end, context.settings.macros[macroName])
+        macro = context.settings.const_macros.get(macroName, None)
+        if macro is not None:
+            document.contents = _replace_span(document, start, end, context.settings.const_macros[macroName])
             pointer = start
-        elif macro is not None and callable(macro):
+        elif macro is None and context.settings.function_macros.get(macroName, None) is not None:
             logger.exception(
                 f"Exception encountered trying to resolve {match.group(0)} as {macroName} is a function, not a "
                 f"const."
@@ -149,32 +149,26 @@ def _replace_const_macros(context: ProcessingContext, document: Document):
             pointer = end
 
 
-def _extract_args(value: str) -> Tuple[str]:
-    args = tuple()
-    if value:
-        args = tuple(map(lambda x: x.strip(), value.split(",")))
-    return args
+def _extract_args(value: str) -> Tuple[str, ...]:
+    return tuple(map(lambda x: x.strip(), value.split(","))) if value else ()
 
 
 def _run_function_macro(
-    context: ProcessingContext, functionName: str, args: Tuple[str], origin_match: str
-) -> Tuple[bool, str | None]:
-    if callable(context.settings.macros[functionName]):
-        # noinspection PyBroadException
-        try:
-            return True, context.settings.macros[functionName](*args)
-        except Exception:
-            signature = inspect.signature(context.settings.macros[functionName])
-            if len(args) != len(signature.parameters):
-                logger.exception(
-                    f"Exception encountered trying to resolve {origin_match} using {signature}. "
-                    f"Expected {len(signature.parameters)} args, got {len(args)}."
-                )
-            else:
-                logger.exception(f"Exception encountered trying to resolve {origin_match} using {signature}.")
-    else:
-        logger.exception(f"Exception encountered trying to resolve {origin_match} as {functionName} is not a function.")
-    return False, None
+    context: ProcessingContext, functionName: str, args: Tuple[str, ...], origin_match: str
+) -> str | None:
+    # noinspection PyBroadException
+    try:
+        return context.settings.function_macros[functionName](*args)
+    except Exception:
+        signature = inspect.signature(context.settings.function_macros[functionName])
+        if len(args) != len(signature.parameters):
+            logger.exception(
+                f"Exception encountered trying to resolve {origin_match} using {signature}. "
+                f"Expected {len(signature.parameters)} args, got {len(args)}."
+            )
+        else:
+            logger.exception(f"Exception encountered trying to resolve {origin_match} using {signature}.")
+    return None
 
 
 def _replace_function_macros(context: ProcessingContext, document: Document):
@@ -185,11 +179,15 @@ def _replace_function_macros(context: ProcessingContext, document: Document):
             break
         macroName = match.group(1)
         success = False
-        if macroName in context.settings.macros:
+        if macroName in context.settings.function_macros:
             args = _extract_args(match.group(2))
-            success, value = _run_function_macro(context, macroName, args, match.group(0))
-            if success:
+            value = _run_function_macro(context, macroName, args, match.group(0))
+            if value is not None:
                 document.contents = _replace_span(document, start, end, value)
+        elif macroName in context.settings.const_macros:
+            logger.exception(
+                f"Exception encountered trying to resolve {match.group(0)} as {macroName} is not a function."
+            )
         else:
             logger.warning(
                 f"Invalid macro: found {match.group(0)} in {document.input_path}, but no matching macro is defined."
@@ -277,7 +275,7 @@ def move_to_target_dir_relative(context: ProcessingContext, document: Document):
     """
     if context.settings.target_directory and context.settings.root_directory != context.settings.target_directory:
         rel_path = os.path.relpath(context.settings.root_directory, document.input_path)
-        document.target_path = os.path.join(context.settings.target_directory, rel_path)
+        document.target_path = context.settings.target_directory / rel_path
 
 
 @document_rule("*.md")
@@ -304,14 +302,14 @@ def rename_uniquely_for_confluence(context: ProcessingContext, document: Documen
         parts = parts[:-1] + [" - ".join(parts[:-1]) + ".md"]
     else:
         parts = parts[:-1] + [" - ".join(parts) + ".md"]
-    context.target = os.path.join(context.settings.target_directory, *parts)
+    document.target_path = context.settings.target_directory.joinpath(*parts)
 
 
-def GetRulesForStyle(style: DeploymentStyle) -> List[DocumentRule] | KeyError:
+def GetRulesForStyle(style: DeploymentStyle) -> List[DocumentRule]:
     """
     Get the rule set to use for a given deployment style.
     """
-    StandardRulesTable = {
+    StandardRulesTable: Dict[DeploymentStyle, List[DocumentRule]] = {
         DeploymentStyle.GITHUB: [santize_internal_links, move_to_target_dir_relative],
         DeploymentStyle.CONFLUENCE: [
             create_table_of_contents,
