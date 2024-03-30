@@ -1,15 +1,20 @@
+import re
 import os
+import logging
+import inspect
 import functools
 
-from typing import Callable
+from typing import Callable, Tuple, List
 from fnmatch import fnmatch
-from ._consts import Passes, DeploymentStyle
+from ._consts import Passes, DeploymentStyle, regex_const_macro, regex_function_macro
 from ._processing import ProcessingContext
 from ._document import Document
-from ._utils import format_markdown_link, load_consts_from_py_file
 
 
-class _DocumentRule(object):
+logger = logging.getLogger(__name__)
+
+
+class DocumentRule(object):
     def __init__(self, function: Callable[[ProcessingContext, Document], None], file_filter: str, pass_index: Passes):
         """
         Function decorator to create a document processor function. These functions will be called by a
@@ -24,16 +29,16 @@ class _DocumentRule(object):
         functools.update_wrapper(self, self.function)
 
     def _applies(self, document: Document):
-        fnmatch(document.input_path, self.file_filter)
+        return fnmatch(document.input_path, self.file_filter)
 
     def __call__(self, context: ProcessingContext, document: Document):
         if self._applies(document):
             self.function(context, document)
 
 
-def DocumentRule(
+def document_rule(
     file_filter: str = "*.*", pass_index: Passes = Passes.FIRST
-) -> Callable[[Callable[[ProcessingContext, Document], None]], _DocumentRule]:
+) -> Callable[[Callable[[ProcessingContext, Document], None]], DocumentRule]:
     """
     A wrapper to make simple DocumentRules from functions.
     :param file_filter: fnmatch style file filter string.
@@ -43,18 +48,20 @@ def DocumentRule(
     """
 
     def _inner(func):
-        return _DocumentRule(func, file_filter, pass_index)
+        return DocumentRule(func, file_filter, pass_index)
 
     return _inner
 
 
-@DocumentRule("*.md")
+@document_rule("*.md")
 def create_table_of_contents(context: ProcessingContext, document: Document):
     """
     Create a table of contents wherever the document has the variable ${create_table_of_contents}
     :param context: The ProcessingContext.
     :param document: The document being processed.
     """
+    from ._utils import format_markdown_link
+
     TABLE_OF_CONTENTS_VARIABLE = "${create_table_of_contents}"
     lines = document.contents.split("\n")
     processed = []
@@ -73,21 +80,104 @@ def create_table_of_contents(context: ProcessingContext, document: Document):
     document.contents = "\n".join(processed)
 
 
-@DocumentRule("*.md")
-def replace_variables(context: ProcessingContext, document: Document):
+def _get_next_match(document: Document, pointer: int, regex: re.Pattern) -> Tuple[re.Match | None, int, int, str]:
+    match = re.search(regex, document.contents[pointer:])
+    """:type: re.Match"""
+    if not match:
+        return None, 0, 0, ""
+    start, end = match.span(0)[0] + pointer, match.span(0)[1] + pointer
+    macroName = match.group(1)
+    return match, start, end, macroName
+
+
+def _replace_const_macros(context: ProcessingContext, document: Document):
+    pointer = 0
+    while pointer < len(document.contents):
+        match, start, end, macroName = _get_next_match(document, pointer, regex_const_macro)
+        if not match:
+            break
+        if macroName in context.settings.macros:
+            document.contents = "".join([
+                document.contents[:start],
+                context.settings.macros[macroName],
+                document.contents[end:],
+            ])
+            pointer = start
+        else:
+            logger.warning(
+                f"Invalid macro: found {match.group(0)} in {document.input_path}, but no matching macro is defined."
+            )
+            pointer = end
+
+
+def _extract_args(value: str) -> Tuple[str]:
+    args = tuple()
+    if value:
+        args = tuple(map(lambda x: x.strip(), value.split(",")))
+    return args
+
+
+def _run_function_macro(context: ProcessingContext, functionName: str, args: Tuple[str], origin_match: str) -> Tuple[bool, str | None]:
+    if callable(context.settings.macros[functionName]):
+        # noinspection PyBroadException
+        try:
+            return True, context.settings.macros[functionName](*args)
+        except Exception:
+            signature = inspect.signature(context.settings.macros[functionName])
+            if len(args) != len(signature.parameters):
+                logger.exception(
+                    f"Exception encountered trying to resolve {origin_match} using {signature}. "
+                    f"Expected {len(signature.parameters)} args, got {len(args)}."
+                )
+            else:
+                logger.exception(
+                    f"Exception encountered trying to resolve {origin_match} using {signature}."
+                )
+    else:
+        logger.exception(
+            f"Exception encountered trying to resolve {origin_match} as {functionName} is not a function."
+        )
+    return False, None
+
+
+def _replace_function_macros(context: ProcessingContext, document: Document):
+    pointer = 0
+    while pointer < len(document.contents):
+        match, start, end, macroName = _get_next_match(document, pointer, regex_function_macro)
+        if not match:
+            break
+        success = False
+        if macroName in context.settings.macros:
+            args = _extract_args(match.group(2))
+            success, value = _run_function_macro(context, macroName, args, match.group(0))
+            if success:
+                document.contents = "".join([
+                    document.contents[:start],
+                    value,
+                    document.contents[end:],
+                ])
+        else:
+            logger.warning(
+                f"Invalid macro: found {match.group(0)} in {document.input_path}, but no matching macro is defined."
+            )
+        if success:
+            pointer = start
+        else:
+            pointer = end
+
+
+@document_rule("*.md")
+def apply_macros(context: ProcessingContext, document: Document):
     """
-    Load a set of consts from the consts file set in the context settings and replace all variables in document
-    which are in the form ${some_variable}. The consts file should only contain const values or functions which
-    take the document as an argument and return some constant.
+    Applies any defined macros to the document.
     :param context: The ProcessingContext.
     :param document: The document being processed.
     """
-    consts = load_consts_from_py_file(context.settings.consts)
-    for key, value in consts.items():
-        document.contents = document.contents.replace("${{}}".format(key), str(value))
+    _replace_const_macros(context, document)
+    _replace_function_macros(context, document)
 
 
-@DocumentRule("*.md")
+@document_rule("*.md")
 def santize_internal_links(context: ProcessingContext, document: Document):
     """
     Find any "internal" markdown links and make sure they use the form ()[<path to item>]
@@ -97,7 +187,7 @@ def santize_internal_links(context: ProcessingContext, document: Document):
     pass  # TODO: fill this in
 
 
-@DocumentRule()
+@document_rule()
 def move_to_target_dir_relative(context: ProcessingContext, document: Document):
     """
     Move the target_path file to save a document to, to the same place under the target_path directory.
@@ -109,7 +199,7 @@ def move_to_target_dir_relative(context: ProcessingContext, document: Document):
         document.target_path = os.path.join(context.settings.target_directory, rel_path)
 
 
-@DocumentRule("*.md")
+@document_rule("*.md")
 def rename_uniquely_for_confluence(context: ProcessingContext, document: Document):
     """
     Renames each page so that it contains its own tree as part of its name for the purpose of making the file
@@ -136,12 +226,15 @@ def rename_uniquely_for_confluence(context: ProcessingContext, document: Documen
     context.target = os.path.join(context.settings.target_directory, *parts)
 
 
-StandardRulesTable = {
-    DeploymentStyle.GITHUB: [santize_internal_links, move_to_target_dir_relative],
-    DeploymentStyle.CONFLUENCE: [
-        create_table_of_contents,
-        replace_variables,
-        santize_internal_links,
-        rename_uniquely_for_confluence,
-    ],
-}
+def GetRulesForStyle(style: DeploymentStyle) -> List[DocumentRule] | KeyError:
+    StandardRulesTable = {
+        DeploymentStyle.GITHUB: [santize_internal_links, move_to_target_dir_relative],
+        DeploymentStyle.CONFLUENCE: [
+            create_table_of_contents,
+            apply_macros,
+            santize_internal_links,
+            rename_uniquely_for_confluence,
+        ],
+        DeploymentStyle.CUSTOM: []
+    }
+    return list(StandardRulesTable[style])

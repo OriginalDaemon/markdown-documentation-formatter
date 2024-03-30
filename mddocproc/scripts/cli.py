@@ -1,8 +1,11 @@
 import sys
 import pathlib
 import argparse
+import logging
 
-from mddocproc import DeploymentStyle, process_docs, load_consts_from_py_file, rules
+from typing import Tuple, List, Dict
+
+from mddocproc import DeploymentStyle, process_docs, load_macros_from_py_file, load_custom_rules_from_py_file, rules, DocumentRule, FunctionMacro
 
 
 def _process_path_arg(path, arg_name, expect_exists=True, expect_dir=False):
@@ -27,7 +30,7 @@ def _deploymentStyle(value):
     raise argparse.ArgumentTypeError("Deployment type invalid: {}".format(value))
 
 
-def parse_args(argv: list | None = None):
+def parse_args(argv: list | None = None) -> Tuple[pathlib.Path, pathlib.Path, List[DocumentRule], Dict[str, FunctionMacro], str, bool]:
     """
     Parse the command line args.
     :param argv: argument list from the command line.
@@ -54,31 +57,53 @@ def parse_args(argv: list | None = None):
         "--style",
         "-s",
         default=DeploymentStyle.CONFLUENCE,
-        help="The style of deployment to do.",
+        help="Determines the default ruleset to use. Use confluence|github to use rule-sets applicable for deployment "
+             "to the respective platforms. Use custom to only use rules provided via the --rules argument",
         type=_deploymentStyle,
     )
     parser.add_argument(
-        "--consts",
-        "-c",
+        "--macros",
+        "-m",
         default=None,
-        help="The location of the consts file.",
-        type=lambda x: _process_path_arg(x, "consts", True, False),
+        help="The location of the macros file.",
+        type=lambda x: _process_path_arg(x, "macros", True, False),
     )
-    parser.add_argument("--version", "-v", default="", help="The name to use for the version of the documentation.")
+    parser.add_argument(
+        "--rules",
+        "-r",
+        default=None,
+        help="The location of the rules module with your custom rules in it.",
+        type=lambda x: _process_path_arg(x, "rules", True, False),
+    )
+    parser.add_argument("--version", default="", help="The name to use for the version of the documentation.")
+    parser.add_argument("--verbose", "-v", default="", help="Use verbose logging", action="store_true")
     args = parser.parse_args(argv)
 
-    consts = {}
-    if args.consts is not None:
-        consts = load_consts_from_py_file(args.consts)
+    rule_set = rules.GetRulesForStyle(args.style)
 
-    return args.input, args.output, rules.StandardRulesTable[args.style], consts, args.version
+    if args.style == DeploymentStyle.CUSTOM and args.rules is None:
+        parser.error("You must provide a module with custom rules to use the custom deployment style.")
+
+    if args.rules is not None:
+        rule_set.extend(load_custom_rules_from_py_file(args.rules))
+
+    macros = {}
+    if args.macros is not None:
+        macros = load_macros_from_py_file(args.macros)
+
+    return args.input, args.output, rule_set, macros, args.version, args.verbose
 
 
 def main():  # pragma: no cover
     """
     Takes a folder of documentation and prepares it for deployment in various ways.
     """
-    return process_docs(*parse_args(sys.argv[1:]))
+    input_dir, output_dir, rule_set, macros, version_name, verbose = parse_args(sys.argv[1:])
+    logging.basicConfig(
+        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+        level=logging.DEBUG if verbose else logging.INFO
+    )
+    return process_docs(input_dir, output_dir, rule_set, macros, version_name)
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -1,33 +1,6 @@
 import os
 import errno
-import importlib
-import importlib.util
 import urllib.parse
-
-from pathlib import Path
-from typing import Dict
-
-
-def load_consts_from_py_file(python_file_path: Path) -> Dict[str, str]:
-    """
-    Import a python file and laod any global consts defined within it. Consts can, ofcourse, be set by functions
-    which are ran as side effects of the import.
-    :param python_file_path: The path to the python file where the consts are defined.
-    :return: Dictionary of const names and their values.
-    """
-    if not python_file_path.exists() or not python_file_path.is_file():
-        return {}
-
-    consts = {}
-    spec = importlib.util.spec_from_file_location("consts", str(python_file_path.resolve()))
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    for each in dir(module):
-        if not each.startswith("_"):
-            item = getattr(module, each)
-            if not callable(item):
-                consts[each] = item
-    return consts
 
 
 def format_markdown_link(link_name, url):

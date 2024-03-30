@@ -1,12 +1,17 @@
-from ._consts import Passes
+from ._consts import Passes, FunctionMacro
 from ._document import Document, load_document
-from typing import overload, Dict
+from typing import Dict
 from pathlib import Path
 
 
 class ProcessingSettings(object):
     def __init__(
-        self, root_directory, target_directory, version_name: str, rule_set: list = None, consts: Dict[str, str] = None
+        self,
+        root_directory: Path = Path("./"),
+        target_directory: Path = Path("./"),
+        version_name: str = "",
+        rule_set: list = None,
+        macros: Dict[str, str | FunctionMacro] | None = None
     ):
         """
         Settings to use when processing a document.
@@ -16,12 +21,12 @@ class ProcessingSettings(object):
         :param version_name: The name of the version of the documentation, mostly used for confluence naming. Usually
                              develop or main.
         :param rule_set: The rules to run on each doc.
-        :param consts: The consts to use for mass replacement throughout the docs. Can be None for no consts.
+        :param macros: The macros to use for mass replacement throughout the docs. Can be None for no macros.
         """
         self.root_directory = root_directory
         self.target_directory = target_directory
         self.rules = rule_set or list()
-        self.consts = consts or dict()
+        self.macros = macros or dict()
         self.version_name = version_name
 
 
@@ -57,8 +62,8 @@ class ProcessingContext(object):
             document.save()
 
 
-def process_docs(input_dir: Path, output_dir: Path, rule_set: list, consts: Dict[str, str], version_name: str):
-    settings = ProcessingSettings(input_dir, output_dir, version_name, rule_set, consts)
+def process_docs(input_dir: Path, output_dir: Path, rule_set: list, macros: Dict[str, FunctionMacro], version_name: str):
+    settings = ProcessingSettings(input_dir, output_dir, version_name, rule_set, macros)
     context = ProcessingContext(settings)
     for file_path in input_dir.glob("*.*"):
         context.add_document(file_path)

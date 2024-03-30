@@ -55,7 +55,7 @@ class TestCommandLineArgs(unittest.TestCase):
         with patch.object(pathlib.Path, "exists", new=_exists):
             with patch.object(pathlib.Path, "is_dir") as mock_is_dir:
                 mock_is_dir.return_value = True
-                input_dir, output_dir, rule_set, consts, version_name = cli.parse_args(
+                input_dir, output_dir, rule_set, macros, version_name, verbose = cli.parse_args(
                     ["--input", "input_file_path", "--output", "output_file_path"]
                 )
                 self.assertEqual(output_dir, pathlib.Path("output_file_path"))
@@ -75,7 +75,7 @@ class TestCommandLineArgs(unittest.TestCase):
             with patch.object(pathlib.Path, "is_dir") as mock_isdir:
                 mock_exists.return_value = True
                 mock_isdir.return_value = True
-                input_dir, output_dir, rule_set, consts, version_name = cli.parse_args(
+                input_dir, output_dir, rule_set, macros, version_name, verbose = cli.parse_args(
                     ["--input", "input_file_path", "--output", "output_file_path"]
                 )
                 self.assertIsInstance(input_dir, pathlib.Path)
@@ -86,11 +86,11 @@ class TestCommandLineArgs(unittest.TestCase):
             with patch.object(pathlib.Path, "is_dir") as mock_isdir:
                 mock_exists.return_value = True
                 mock_isdir.return_value = True
-                input_dir, output_dir, rule_set, consts, version_name = cli.parse_args(
+                input_dir, output_dir, rule_set, macros, version_name, verbose = cli.parse_args(
                     ["--input", "input_file_path", "--output", "output_file_path"]
                 )
-                self.assertListEqual(rule_set, rules.StandardRulesTable[DeploymentStyle.CONFLUENCE])
-                self.assertDictEqual(consts, {})
+                self.assertListEqual(rule_set, rules.GetRulesForStyle(DeploymentStyle.CONFLUENCE))
+                self.assertDictEqual(macros, {})
                 self.assertEqual(version_name, "")
 
     def test_github_style(self):
@@ -98,10 +98,18 @@ class TestCommandLineArgs(unittest.TestCase):
             with patch.object(pathlib.Path, "is_dir") as mock_isdir:
                 mock_exists.return_value = True
                 mock_isdir.return_value = True
-                input_dir, output_dir, rule_set, consts, version_name = cli.parse_args(
+                input_dir, output_dir, rule_set, macros, version_name, verbose = cli.parse_args(
                     ["--input", "input_file_path", "--output", "output_file_path", "--style", "github"]
                 )
-                self.assertListEqual(rule_set, rules.StandardRulesTable[DeploymentStyle.GITHUB])
+                self.assertListEqual(rule_set, rules.GetRulesForStyle(DeploymentStyle.GITHUB))
+
+    def test_custom_style(self):
+        with patch.object(pathlib.Path, "exists") as mock_exists:
+            with patch.object(pathlib.Path, "is_dir") as mock_isdir:
+                mock_exists.return_value = True
+                mock_isdir.return_value = True
+                with self.assertRaises(SystemExit):
+                    cli.parse_args(["--input", "input_file_path", "--output", "output_file_path", "--style", "custom"])
 
     def test_invalid_style(self):
         with patch.object(pathlib.Path, "exists") as mock_exists:
@@ -120,30 +128,49 @@ class TestCommandLineArgs(unittest.TestCase):
                         ]
                     )
 
-    def test_consts_file_loading(self):
+    def test_macro_file_loading(self):
         def _is_dir(v):
-            return not v.name.endswith("consts.py")
+            return not v.name.endswith("macros.py")
 
         with patch.object(pathlib.Path, "exists") as mock_exists:
             with patch.object(pathlib.Path, "is_dir", new=_is_dir):
                 mock_exists.return_value = True
-                input_dir, output_dir, rule_set, consts, version_name = cli.parse_args(
+                input_dir, output_dir, rule_set, macros, version_name, verbose = cli.parse_args(
                     [
                         "--input",
                         "input_file_path",
                         "--output",
                         "output_file_path",
-                        "--consts",
-                        os.path.join(os.path.dirname(__file__), "data", "consts.py"),
+                        "--macros",
+                        os.path.join(os.path.dirname(__file__), "data", "macros.py"),
                     ]
                 )
-                self.assertDictEqual(
-                    consts,
-                    {
-                        "author": "hello",
-                        "job": "world",
-                    },
+                self.assertIn("author", macros)
+                self.assertEqual("hello", macros["author"])
+                self.assertIn("title", macros)
+                self.assertEqual("world", macros["title"])
+                self.assertIn("capitalize", macros)
+                self.assertTrue(callable(macros["capitalize"]))
+
+    def test_rules_module(self):
+        def _is_dir(v):
+            return not v.name.endswith("rules.py")
+
+        with patch.object(pathlib.Path, "exists") as mock_exists:
+            with patch.object(pathlib.Path, "is_dir", new=_is_dir):
+                mock_exists.return_value = True
+                input_dir, output_dir, rule_set, macros, version_name, verbose = cli.parse_args(
+                    [
+                        "--input",
+                        "input_file_path",
+                        "--output",
+                        "output_file_path",
+                        "--rules",
+                        os.path.join(os.path.dirname(__file__), "data", "rules.py"),
+                    ]
                 )
+                self.assertTrue(any(x.__name__ == "my_rule" for x in rule_set))
+                self.assertEqual(len(rules.GetRulesForStyle(DeploymentStyle.CONFLUENCE)) + 1, len(rule_set))
 
     def test_consts_file_isdir(self):
         with patch.object(pathlib.Path, "exists") as mock_exists:
@@ -157,7 +184,7 @@ class TestCommandLineArgs(unittest.TestCase):
                             "input_file_path",
                             "--output",
                             "output_file_path",
-                            "--consts",
+                            "--macros",
                             "consts_file_path.py",
                         ]
                     )
@@ -176,7 +203,7 @@ class TestCommandLineArgs(unittest.TestCase):
                             "input_file_path",
                             "--output",
                             "output_file_path",
-                            "--consts",
+                            "--macros",
                             "consts_file_path.py",
                         ]
                     )

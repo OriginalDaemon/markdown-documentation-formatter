@@ -1,4 +1,7 @@
+import re
+
 from enum import Enum
+from typing import Callable, ParamSpec
 
 
 class DeploymentStyle(Enum):
@@ -8,6 +11,7 @@ class DeploymentStyle(Enum):
 
     GITHUB = "github"
     CONFLUENCE = "confluence"
+    CUSTOM = "custom"
 
 
 class Passes(Enum):
@@ -18,3 +22,11 @@ class Passes(Enum):
     FIRST = 0
     LINK_UPDATING = 1
     FINALIZE = 2
+
+
+P = ParamSpec("P")
+FunctionMacro = Callable[P, str]
+
+
+regex_const_macro = re.compile(r"\${([\w]+)}")
+regex_function_macro = re.compile(r"\${([\w]+)\(([\w\s,]*)\)}")
