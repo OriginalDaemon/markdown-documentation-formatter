@@ -1,7 +1,6 @@
 import os.path
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 from mddocproc import ProcessingSettings, ProcessingContext, Document, rules
 
@@ -247,15 +246,15 @@ class TestSanitizeInternalLinks(unittest.TestCase):
 
     def test_internal_root_relative_link_with_subsection(self):
         cases = [
-            "[link](<sub dir/relative - file.md#sub section>)",
-            "[link](sub%20dir/relative%20-%20file.md#sub%20section)",
-            "[link](<sub%20dir/relative%20-%20file.md#sub%20section>)",
-            "[link](sub%20dir/relative%20-%20file.md#sub-section)",
-            "[link](<sub%20dir/relative%20-%20file.md#sub-section>)",
+            "[link](<sub dir/relative - file.md#sub - section>)",
+            "[link](sub%20dir/relative%20-%20file.md#sub%20-%20section)",
+            "[link](<sub%20dir/relative%20-%20file.md#sub%20-%20section>)",
+            "[link](sub%20dir/relative%20-%20file.md#sub---section)",
+            "[link](<sub%20dir/relative%20-%20file.md#sub---section>)",
         ]
-        expected = "[link](<../sub dir/relative - file.md>)"
+        expected = "[link](<../sub dir/relative - file.md#sub - section>)"
         for i, case in enumerate(cases):
-            with self.subTest(msg=case, i=i):
+            with self.subTest(i=i):
                 context, doc = self._create_test_data(case)
                 rules.santize_internal_links(context, doc)
                 self.assertEqual(expected, doc.contents)

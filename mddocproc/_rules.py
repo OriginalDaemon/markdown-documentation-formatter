@@ -241,7 +241,7 @@ def _get_subsection_part(section: str, linked_document: Document):
     if section:
         # find the actual linked section and recreate teh section reference.
         regex_section_part = unquote(section).replace("-", "[ -]")
-        section_regex = re.compile(f"[#]+[\s]*({regex_section_part})")
+        section_regex = re.compile(r"#+\s*(" + regex_section_part + ")")
         for line in linked_document.contents.split("\n"):
             result = re.search(section_regex, line)
             if result:
