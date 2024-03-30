@@ -229,6 +229,9 @@ def rename_uniquely_for_confluence(context: ProcessingContext, document: Documen
 
 
 def GetRulesForStyle(style: DeploymentStyle) -> List[DocumentRule] | KeyError:
+    """
+    Get the rule set to use for a given deployment style.
+    """
     StandardRulesTable = {
         DeploymentStyle.GITHUB: [santize_internal_links, move_to_target_dir_relative],
         DeploymentStyle.CONFLUENCE: [

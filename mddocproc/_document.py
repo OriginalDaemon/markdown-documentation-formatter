@@ -8,7 +8,6 @@ class Document(object):
         """
         Holds a file, referenced by path, and it's contents, for manipulation by document rule_set.
         :param input_path: The path to the input file.
-        :type input_path:
         """
         self.input_path = input_path
         self.target_path = input_path
