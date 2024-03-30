@@ -198,6 +198,7 @@ class TestSanitizeInternalLinks(unittest.TestCase):
     def test_internal_file_relative_link(self):
         def _exists(v: Path):
             return all(x == y for x, y in zip(v.parts[-3:], ["docs", "sub dir", "relative - file.md"]))
+
         cases = [
             "[link](<../sub dir/relative - file.md>)",
             "[link](../sub%20dir/relative%20-%20file.md)",
@@ -217,6 +218,7 @@ class TestSanitizeInternalLinks(unittest.TestCase):
     def test_internal_file_relative_link_with_subsection(self):
         def _exists(v: Path):
             return all(x == y for x, y in zip(v.parts[-3:], ["docs", "sub dir", "relative - file.md"]))
+
         cases = [
             "[link](<../sub dir/relative - file.md#sub section>)",
             "[link](../sub%20dir/relative%20-%20file.md#sub%20section)",
@@ -236,6 +238,7 @@ class TestSanitizeInternalLinks(unittest.TestCase):
     def test_internal_root_relative_link(self):
         def _exists(v: Path):
             return all(x == y for x, y in zip(v.parts[-3:], ["docs", "sub dir", "relative - file.md"]))
+
         cases = [
             "[link](<docs/sub dir/relative - file.md>)",
             "[link](docs/sub%20dir/relative%20-%20file.md)",
@@ -255,6 +258,7 @@ class TestSanitizeInternalLinks(unittest.TestCase):
     def test_internal_root_relative_link_with_subsection(self):
         def _exists(v: Path):
             return all(x == y for x, y in zip(v.parts[-3:], ["docs", "sub dir", "relative - file.md"]))
+
         cases = [
             "[link](<docs/sub dir/relative - file.md#sub section>)",
             "[link](docs/sub%20dir/relative%20-%20file.md#sub%20section)",
