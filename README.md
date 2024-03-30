@@ -1,6 +1,6 @@
 # markdown-documentation-processing
 
-[![Coverage Status](https://coveralls.io/repos/github/OriginalDaemon/markdown-documentation-processing/badge.svg?branch=main)](https://coveralls.io/github/OriginalDaemon/markdown-documentation-processing?branch=main)
+![Coverage Status](https://coveralls.io/repos/github/OriginalDaemon/markdown-documentation-processing/badge.svg?branch=main) | ![CI](https://github.com/OriginalDaemon/markdown-documentation-processing/actions/workflows/ci.yml/badge.svg)
 
 A system to take product documentation stored in markdown and process it in various ways to ready it for deployment. This allows you to automate various parts of documentation maintenance such as;
 
