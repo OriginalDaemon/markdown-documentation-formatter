@@ -10,8 +10,14 @@ from pathlib import Path
 from fnmatch import fnmatch
 from urllib.parse import unquote
 from typing import Callable, Tuple, List, TYPE_CHECKING
-from ._consts import Passes, DeploymentStyle, regex_const_macro, regex_function_macro, regex_markdown_link, \
-    regex_markdown_link_with_subsection
+from ._consts import (
+    Passes,
+    DeploymentStyle,
+    regex_const_macro,
+    regex_function_macro,
+    regex_markdown_link,
+    regex_markdown_link_with_subsection,
+)
 
 if TYPE_CHECKING:
     from ._processing import ProcessingContext
@@ -227,8 +233,7 @@ def _get_next_link_match(document: Document, pointer: int) -> Tuple[bool, int, i
 def _form_relative_link(source_document: Document, linked_document: Document) -> str:
     common = Path(os.path.commonpath([linked_document.input_path, source_document.input_path]))
     return os.path.join(
-        os.path.relpath(common, source_document.input_path.parent),
-        os.path.relpath(linked_document.target_path, common)
+        os.path.relpath(common, source_document.input_path.parent), os.path.relpath(linked_document.target_path, common)
     ).replace("\\", "/")
 
 
