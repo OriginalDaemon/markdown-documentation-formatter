@@ -15,13 +15,3 @@ This system is also extensible so you can add rules of your own by writting a py
 The overall aim is to be able to store your documentation with your code, in a form that is convenient to use when working on it, but massage it into a nicer form for users to read.
 
 This system features a python library, which can be used on its own, a cli for convenient local running, and a github action so it can be included in your CI.
-
-
-### REMOVE THIS - TESTING GITHUB
-
- - [relative - <>](<./tests/data/doc test/test.md#sub section - 1>)
- - [relative - url](<./tests/data/doc%20test/test.md#sub%20section%20-%201>)
- - [relative - hyphen](<./tests/data/doc-test/test.md#sub-section---1>)
- - [root - <>](<tests/data/doc test/test.md#sub section - 1>)
- - [root - url](<tests/data/doc%20test/test.md#sub%20section%20-%201>)
- - [root - hyphen](<tests/data/doc-test/test.md#sub-section---1>)
