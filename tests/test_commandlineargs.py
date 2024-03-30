@@ -230,21 +230,3 @@ class TestCommandLineArgs(unittest.TestCase):
                             "consts_file_path.py",
                         ]
                     )
-
-
-def get_suite():
-    tests = [
-        unittest.TestLoader().loadTestsFromTestCase(TestCommandLineArgs),
-    ]
-    return unittest.TestSuite(tests)
-
-
-def run_tests():
-    import sys
-
-    suite = get_suite()
-    unittest.TextTestRunner(stream=sys.stderr).run(suite)
-
-
-if __name__ == "__main__":
-    unittest.main()
