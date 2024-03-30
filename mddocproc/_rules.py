@@ -10,7 +10,8 @@ from pathlib import Path
 from fnmatch import fnmatch
 from urllib.parse import unquote
 from typing import Callable, Tuple, List, TYPE_CHECKING
-from ._consts import Passes, DeploymentStyle, regex_const_macro, regex_function_macro, regex_markdown_link
+from ._consts import Passes, DeploymentStyle, regex_const_macro, regex_function_macro, regex_markdown_link, \
+    regex_markdown_link_with_subsection
 
 if TYPE_CHECKING:
     from ._processing import ProcessingContext
@@ -204,6 +205,46 @@ def apply_macros(context: ProcessingContext, document: Document):
     _replace_function_macros(context, document)
 
 
+def _get_document_from_link(context: ProcessingContext, document: Document, link: str) -> Document | None:
+    result = context.get_document((document.input_path.parent / link).resolve())
+    if not result:
+        result = context.get_document((context.settings.root_directory / link).resolve())
+    return result
+
+
+def _get_next_link_match(document: Document, pointer: int) -> Tuple[bool, int, int, str, str, str]:
+    match, start, end = _get_next_match(document, pointer, regex_markdown_link_with_subsection)
+    if match:
+        return True, start, end, match.group(1), match.group(2), match.group(3)
+    else:
+        match, start, end = _get_next_match(document, pointer, regex_markdown_link)
+        if match:
+            return True, start, end, match.group(1), match.group(2), ""
+        else:
+            return False, 0, 0, "", "", ""
+
+
+def _form_relative_link(source_document: Document, linked_document: Document) -> str:
+    common = Path(os.path.commonpath([linked_document.input_path, source_document.input_path]))
+    return os.path.join(
+        os.path.relpath(common, source_document.input_path.parent),
+        os.path.relpath(linked_document.target_path, common)
+    ).replace("\\", "/")
+
+
+def _get_subsection_part(section: str, linked_document: Document):
+    if section:
+        # find the actual linked section and recreate teh section reference.
+        regex_section_part = unquote(section).replace("-", "[ -]")
+        section_regex = re.compile(f"[#]+[\s]*({regex_section_part})")
+        for line in linked_document.contents.split("\n"):
+            result = re.search(section_regex, line)
+            if result:
+                section = result.group(1)
+                break
+    return f"#{section}" if section else ""
+
+
 @document_rule("*.md")
 def santize_internal_links(context: ProcessingContext, document: Document):
     """
@@ -213,16 +254,13 @@ def santize_internal_links(context: ProcessingContext, document: Document):
     """
     pointer = 0
     while pointer < len(document.contents):
-        match, start, end = _get_next_match(document, pointer, regex_markdown_link)
-        if not match:
-            break
-        pointer = end
-        text, link = match.group(1), match.group(2)
-        link = unquote(link)
-        path = Path(document.input_path.parent).joinpath(link).resolve()
-        if path.exists():
-            reformatted_link = f"[{text}](<{link}>)"
-            document.contents = _replace_span(document, start, end, reformatted_link)
+        success, start, pointer, text, link, section = _get_next_link_match(document, pointer)
+        linked_document = _get_document_from_link(context, document, unquote(link))
+        if linked_document is not None:
+            link = _form_relative_link(document, linked_document)
+            section_part = _get_subsection_part(section, linked_document)
+            reformatted_link = f"[{text}](<{link}{section_part}>)"
+            document.contents = _replace_span(document, start, pointer, reformatted_link)
 
 
 @document_rule()

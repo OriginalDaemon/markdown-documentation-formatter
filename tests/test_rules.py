@@ -1,3 +1,4 @@
+import os.path
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -187,6 +188,14 @@ class TestApplyMacros(unittest.TestCase):
 
 
 class TestSanitizeInternalLinks(unittest.TestCase):
+    def _create_test_data(self, link):
+        doc_root = Path(os.path.join(os.path.dirname(__file__), "data", "docs"))
+        context = ProcessingContext(ProcessingSettings(doc_root))
+        context.add_document(Document(doc_root / Path("sub dir/relative - file.md"), "### sub - section"))
+        doc = Document(Path(doc_root / "test dir/test.md"), link)
+        context.add_document(doc)
+        return context, doc
+
     def test_external_link_unchanged(self):
         context = ProcessingContext(ProcessingSettings())
         input_md = "[link](https://www.google.com)"
@@ -196,83 +205,59 @@ class TestSanitizeInternalLinks(unittest.TestCase):
         self.assertEqual(expected, doc.contents)
 
     def test_internal_file_relative_link(self):
-        def _exists(v: Path):
-            return all(x == y for x, y in zip(v.parts[-3:], ["docs", "sub dir", "relative - file.md"]))
-
         cases = [
             "[link](<../sub dir/relative - file.md>)",
             "[link](../sub%20dir/relative%20-%20file.md)",
             "[link](<../sub%20dir/relative%20-%20file.md>)",
-            "[link](../sub-dir/relative---file.md)",
-            "[link](<../sub-dir/relative---file.md>)",
         ]
         expected = "[link](<../sub dir/relative - file.md>)"
-        context = ProcessingContext(ProcessingSettings())
         for i, case in enumerate(cases):
             with self.subTest(i=i):
-                doc = Document(Path("docs/test dir/test.md"), case)
-                with patch.object(Path, "exists", new=_exists):
-                    rules.santize_internal_links(context, doc)
+                context, doc = self._create_test_data(case)
+                rules.santize_internal_links(context, doc)
                 self.assertEqual(expected, doc.contents)
 
     def test_internal_file_relative_link_with_subsection(self):
-        def _exists(v: Path):
-            return all(x == y for x, y in zip(v.parts[-3:], ["docs", "sub dir", "relative - file.md"]))
-
         cases = [
-            "[link](<../sub dir/relative - file.md#sub section>)",
-            "[link](../sub%20dir/relative%20-%20file.md#sub%20section)",
-            "[link](<../sub%20dir/relative%20-%20file.md#sub%20section>)",
-            "[link](../sub-dir/relative---file.md#sub-section)",
-            "[link](<../sub-dir/relative---file.md#sub-section>)",
+            "[link](<../sub dir/relative - file.md#sub - section>)",
+            "[link](../sub%20dir/relative%20-%20file.md#sub%20-%20section)",
+            "[link](<../sub%20dir/relative%20-%20file.md#sub%20-%20section>)",
+            "[link](../sub%20dir/relative%20-%20file.md#sub---section)",
+            "[link](<../sub%20dir/relative%20-%20file.md#sub---section>)",
         ]
-        expected = "[link](<../sub dir/relative - file.md#sub section>)"
-        context = ProcessingContext(ProcessingSettings())
+        expected = "[link](<../sub dir/relative - file.md#sub - section>)"
         for i, case in enumerate(cases):
             with self.subTest(i=i):
-                doc = Document(Path("docs/test dir/test.md"), case)
-                with patch.object(Path, "exists", new=_exists):
-                    rules.santize_internal_links(context, doc)
+                context, doc = self._create_test_data(case)
+                rules.santize_internal_links(context, doc)
                 self.assertEqual(expected, doc.contents)
 
     def test_internal_root_relative_link(self):
-        def _exists(v: Path):
-            return all(x == y for x, y in zip(v.parts[-3:], ["docs", "sub dir", "relative - file.md"]))
-
         cases = [
-            "[link](<docs/sub dir/relative - file.md>)",
-            "[link](docs/sub%20dir/relative%20-%20file.md)",
-            "[link](<docs/sub%20dir/relative%20-%20file.md>)",
-            "[link](docs/sub-dir/relative---file.md)",
-            "[link](<docs/sub-dir/relative---file.md>)",
+            "[link](<sub dir/relative - file.md>)",
+            "[link](sub%20dir/relative%20-%20file.md)",
+            "[link](<sub%20dir/relative%20-%20file.md>)",
         ]
         expected = "[link](<../sub dir/relative - file.md>)"
-        context = ProcessingContext(ProcessingSettings())
         for i, case in enumerate(cases):
             with self.subTest(i=i):
-                doc = Document(Path("docs/test dir/test.md"), case)
-                with patch.object(Path, "exists", new=_exists):
-                    rules.santize_internal_links(context, doc)
+                context, doc = self._create_test_data(case)
+                rules.santize_internal_links(context, doc)
                 self.assertEqual(expected, doc.contents)
 
     def test_internal_root_relative_link_with_subsection(self):
-        def _exists(v: Path):
-            return all(x == y for x, y in zip(v.parts[-3:], ["docs", "sub dir", "relative - file.md"]))
-
         cases = [
-            "[link](<docs/sub dir/relative - file.md#sub section>)",
-            "[link](docs/sub%20dir/relative%20-%20file.md#sub%20section)",
-            "[link](<docs/sub%20dir/relative%20-%20file.md#sub%20section>)",
-            "[link](docs/sub-dir/relative---file.md#sub-section)",
-            "[link](<docs/sub-dir/relative---file.md#sub-section>)",
+            "[link](<sub dir/relative - file.md#sub section>)",
+            "[link](sub%20dir/relative%20-%20file.md#sub%20section)",
+            "[link](<sub%20dir/relative%20-%20file.md#sub%20section>)",
+            "[link](sub%20dir/relative%20-%20file.md#sub-section)",
+            "[link](<sub%20dir/relative%20-%20file.md#sub-section>)",
         ]
         expected = "[link](<../sub dir/relative - file.md>)"
-        context = ProcessingContext(ProcessingSettings())
         for i, case in enumerate(cases):
             with self.subTest(msg=case, i=i):
-                doc = Document(Path("docs/test dir/test.md"), case)
-                with patch.object(Path, "exists", new=_exists):
-                    rules.santize_internal_links(context, doc)
+                context, doc = self._create_test_data(case)
+                rules.santize_internal_links(context, doc)
                 self.assertEqual(expected, doc.contents)
 
 

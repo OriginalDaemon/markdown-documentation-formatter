@@ -31,3 +31,4 @@ FunctionMacro = Callable[P, str]
 regex_const_macro = re.compile(r"\${([\w]+)}")
 regex_function_macro = re.compile(r"\${([\w]+)\(([\w\s,]*)\)}")
 regex_markdown_link = re.compile(r"\[([\w\s]+)\]\([<]*([\w\s\.-\\\/\-%]+[^>])[>]*\)")
+regex_markdown_link_with_subsection = re.compile(r"\[([\w\s]+)\]\([<]*([\w\s\.-\\\/\-%]+[^>])#+(.*[^>])[>]*\)")

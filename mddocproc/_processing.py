@@ -43,20 +43,29 @@ class ProcessingContext(object):
         :param settings: The settings used when processing the document.
         """
         self.settings = settings
-        self.documents: Dict[str, Document] = {}
+        self.documents: Dict[Path, Document] = {}
 
     def add_document(self, document: Document | Path):
         """
         Add a document to be processed.
         :document: The document to add.
         """
-        if isinstance(document, Path):
-            document = load_document(document)
-            self.documents[document.input_path] = document
-        elif isinstance(document, Document):
+        path = document if isinstance(document, Path) else document.input_path
+        document = document if isinstance(document, Document) else load_document(document)
+        if path.is_relative_to(self.settings.root_directory):
             self.documents[document.input_path] = document
         else:
-            raise TypeError(f"Expected a Document or Path, got a {type(document).__name__}.")
+            raise ValueError(f"All documents must be under the root directory, got: {path}")
+
+    def get_document(self, path: Path) -> Document | None:
+        """
+        Find a document in the documentation set being processed in this context.
+        :return: The document or None if the document can't be found.
+        """
+        doc = self.documents.get(path, None)
+        if doc is None:
+            doc = self.documents.get(self.settings.root_directory / path, None)
+        return doc
 
     def run(self):
         for i in range(len(Passes)):
