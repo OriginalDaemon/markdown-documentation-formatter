@@ -19,7 +19,12 @@ logger = logging.getLogger(__name__)
 
 
 class DocumentRule(object):
-    def __init__(self, function: Callable[[ProcessingContext, Document], None], file_filter: str, pass_index: Passes = Passes.FIRST):
+    def __init__(
+        self,
+        function: Callable[[ProcessingContext, Document], None],
+        file_filter: str,
+        pass_index: Passes = Passes.FIRST,
+    ):
         """
         Function decorator to create a document processor function. These functions will be called by a
         ProcessingContext to apply augmentations to a file that is loaded in memory.
