@@ -27,3 +27,10 @@ mddocproc = "scripts:cli.py"
 
 [tool.black]
 line-length = 120
+
+[tool.flake8]
+ignore = ['E203']
+per-file-ignores = [
+    '__init__.py:F401',
+]
+max-line-length = 120
