@@ -97,11 +97,13 @@ def _replace_const_macros(context: ProcessingContext, document: Document):
         if not match:
             break
         if macroName in context.settings.macros:
-            document.contents = "".join([
-                document.contents[:start],
-                context.settings.macros[macroName],
-                document.contents[end:],
-            ])
+            document.contents = "".join(
+                [
+                    document.contents[:start],
+                    context.settings.macros[macroName],
+                    document.contents[end:],
+                ]
+            )
             pointer = start
         else:
             logger.warning(
@@ -117,7 +119,9 @@ def _extract_args(value: str) -> Tuple[str]:
     return args
 
 
-def _run_function_macro(context: ProcessingContext, functionName: str, args: Tuple[str], origin_match: str) -> Tuple[bool, str | None]:
+def _run_function_macro(
+    context: ProcessingContext, functionName: str, args: Tuple[str], origin_match: str
+) -> Tuple[bool, str | None]:
     if callable(context.settings.macros[functionName]):
         # noinspection PyBroadException
         try:
@@ -130,13 +134,9 @@ def _run_function_macro(context: ProcessingContext, functionName: str, args: Tup
                     f"Expected {len(signature.parameters)} args, got {len(args)}."
                 )
             else:
-                logger.exception(
-                    f"Exception encountered trying to resolve {origin_match} using {signature}."
-                )
+                logger.exception(f"Exception encountered trying to resolve {origin_match} using {signature}.")
     else:
-        logger.exception(
-            f"Exception encountered trying to resolve {origin_match} as {functionName} is not a function."
-        )
+        logger.exception(f"Exception encountered trying to resolve {origin_match} as {functionName} is not a function.")
     return False, None
 
 
@@ -151,11 +151,13 @@ def _replace_function_macros(context: ProcessingContext, document: Document):
             args = _extract_args(match.group(2))
             success, value = _run_function_macro(context, macroName, args, match.group(0))
             if success:
-                document.contents = "".join([
-                    document.contents[:start],
-                    value,
-                    document.contents[end:],
-                ])
+                document.contents = "".join(
+                    [
+                        document.contents[:start],
+                        value,
+                        document.contents[end:],
+                    ]
+                )
         else:
             logger.warning(
                 f"Invalid macro: found {match.group(0)} in {document.input_path}, but no matching macro is defined."
@@ -235,6 +237,6 @@ def GetRulesForStyle(style: DeploymentStyle) -> List[DocumentRule] | KeyError:
             santize_internal_links,
             rename_uniquely_for_confluence,
         ],
-        DeploymentStyle.CUSTOM: []
+        DeploymentStyle.CUSTOM: [],
     }
     return list(StandardRulesTable[style])

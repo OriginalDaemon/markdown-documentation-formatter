@@ -5,7 +5,15 @@ import logging
 
 from typing import Tuple, List, Dict
 
-from mddocproc import DeploymentStyle, process_docs, load_macros_from_py_file, load_custom_rules_from_py_file, rules, DocumentRule, FunctionMacro
+from mddocproc import (
+    DeploymentStyle,
+    process_docs,
+    load_macros_from_py_file,
+    load_custom_rules_from_py_file,
+    rules,
+    DocumentRule,
+    FunctionMacro,
+)
 
 
 def _process_path_arg(path, arg_name, expect_exists=True, expect_dir=False):
@@ -30,7 +38,9 @@ def _deploymentStyle(value):
     raise argparse.ArgumentTypeError("Deployment type invalid: {}".format(value))
 
 
-def parse_args(argv: list | None = None) -> Tuple[pathlib.Path, pathlib.Path, List[DocumentRule], Dict[str, FunctionMacro], str, bool]:
+def parse_args(
+    argv: list | None = None,
+) -> Tuple[pathlib.Path, pathlib.Path, List[DocumentRule], Dict[str, FunctionMacro], str, bool]:
     """
     Parse the command line args.
     :param argv: argument list from the command line.
@@ -58,7 +68,7 @@ def parse_args(argv: list | None = None) -> Tuple[pathlib.Path, pathlib.Path, Li
         "-s",
         default=DeploymentStyle.CONFLUENCE,
         help="Determines the default ruleset to use. Use confluence|github to use rule-sets applicable for deployment "
-             "to the respective platforms. Use custom to only use rules provided via the --rules argument",
+        "to the respective platforms. Use custom to only use rules provided via the --rules argument",
         type=_deploymentStyle,
     )
     parser.add_argument(
@@ -100,8 +110,7 @@ def main():  # pragma: no cover
     """
     input_dir, output_dir, rule_set, macros, version_name, verbose = parse_args(sys.argv[1:])
     logging.basicConfig(
-        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-        level=logging.DEBUG if verbose else logging.INFO
+        format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.DEBUG if verbose else logging.INFO
     )
     return process_docs(input_dir, output_dir, rule_set, macros, version_name)
 
