@@ -1,8 +1,6 @@
 import os
 from pathlib import Path
 
-from ._utils import make_directory
-
 
 class Document(object):
     def __init__(self, input_path: Path, data: str = ""):
@@ -42,6 +40,6 @@ def save_document(document: Document):
     Save the contents of a Document to the set target_path.
     :param document: The document to save.
     """
-    make_directory(os.path.dirname(document.target_path))
+    document.target_path.mkdir(parents=True, exist_ok=True)
     with open(document.target_path, "w") as fd:
         fd.write(document.contents)

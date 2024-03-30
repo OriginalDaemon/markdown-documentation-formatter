@@ -1,7 +1,3 @@
-import os
-import errno
-
-
 def format_markdown_link(text: str, relative_path: str, section: str | None = None):
     """
     Creates a well formatted markdown link.
@@ -11,15 +7,3 @@ def format_markdown_link(text: str, relative_path: str, section: str | None = No
     """
     section_part = f"#{section}" if section else ""
     return f"[{text}](<{relative_path}{section_part}>)"
-
-
-def make_directory(directory):
-    """
-    Create a directory, and all parent directories if they don't exist.
-    """
-    if not os.input_path.exists(directory):
-        try:
-            os.makedirs(directory)
-        except OSError as exc:  # Guard against race condition
-            if exc.errno != errno.EEXIST:
-                raise
