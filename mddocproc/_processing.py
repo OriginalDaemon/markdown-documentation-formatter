@@ -11,7 +11,7 @@ class ProcessingSettings(object):
         target_directory: Path = Path("./"),
         version_name: str = "",
         rule_set: list = None,
-        macros: Dict[str, str | FunctionMacro] | None = None
+        macros: Dict[str, str | FunctionMacro] | None = None,
     ):
         """
         Settings to use when processing a document.
@@ -62,7 +62,9 @@ class ProcessingContext(object):
             document.save()
 
 
-def process_docs(input_dir: Path, output_dir: Path, rule_set: list, macros: Dict[str, FunctionMacro], version_name: str):
+def process_docs(
+    input_dir: Path, output_dir: Path, rule_set: list, macros: Dict[str, FunctionMacro], version_name: str
+):
     settings = ProcessingSettings(input_dir, output_dir, version_name, rule_set, macros)
     context = ProcessingContext(settings)
     for file_path in input_dir.glob("*.*"):
