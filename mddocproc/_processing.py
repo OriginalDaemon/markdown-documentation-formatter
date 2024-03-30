@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 from ._consts import Passes, FunctionMacro
-from ._document import Document, load_document
-from typing import Dict
+from ._document import Document, load_document, save_document
+from typing import Dict, List, TYPE_CHECKING
 from pathlib import Path
+
+if TYPE_CHECKING:
+    from ._rules import DocumentRule
 
 
 class ProcessingSettings(object):
@@ -10,7 +15,7 @@ class ProcessingSettings(object):
         root_directory: Path = Path("./"),
         target_directory: Path = Path("./"),
         version_name: str = "",
-        rule_set: list = None,
+        rule_set: List[DocumentRule] | None = None,
         macros: Dict[str, str | FunctionMacro] | None = None,
     ):
         """
@@ -38,7 +43,7 @@ class ProcessingContext(object):
         :param settings: The settings used when processing the document.
         """
         self.settings = settings
-        self.documents = {}
+        self.documents: Dict[str, Document] = {}
 
     def add_document(self, document: Document | Path):
         """
@@ -59,7 +64,7 @@ class ProcessingContext(object):
                 for rules in filter(lambda x: x.pass_index == i, self.settings.rules):
                     rules(self, document)
         for document in self.documents.values():
-            document.save()
+            save_document(document)
 
 
 def process_docs(

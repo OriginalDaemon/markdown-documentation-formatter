@@ -58,7 +58,7 @@ class TestCommandLineArgs(unittest.TestCase):
                 input_dir, output_dir, rule_set, macros, version_name, verbose = cli.parse_args(
                     ["--input", "input_file_path", "--output", "output_file_path"]
                 )
-                self.assertEqual(output_dir, pathlib.Path("output_file_path"))
+                self.assertEqual(pathlib.Path("output_file_path"), output_dir)
 
     def test_output_notadir(self):
         def _is_dir(v):
@@ -89,9 +89,9 @@ class TestCommandLineArgs(unittest.TestCase):
                 input_dir, output_dir, rule_set, macros, version_name, verbose = cli.parse_args(
                     ["--input", "input_file_path", "--output", "output_file_path"]
                 )
-                self.assertListEqual(rule_set, rules.GetRulesForStyle(DeploymentStyle.CONFLUENCE))
-                self.assertDictEqual(macros, {})
-                self.assertEqual(version_name, "")
+                self.assertListEqual(rules.GetRulesForStyle(DeploymentStyle.CONFLUENCE), rule_set)
+                self.assertDictEqual({}, macros)
+                self.assertEqual("", version_name)
 
     def test_github_style(self):
         with patch.object(pathlib.Path, "exists") as mock_exists:
@@ -101,7 +101,7 @@ class TestCommandLineArgs(unittest.TestCase):
                 input_dir, output_dir, rule_set, macros, version_name, verbose = cli.parse_args(
                     ["--input", "input_file_path", "--output", "output_file_path", "--style", "github"]
                 )
-                self.assertListEqual(rule_set, rules.GetRulesForStyle(DeploymentStyle.GITHUB))
+                self.assertListEqual(rules.GetRulesForStyle(DeploymentStyle.GITHUB), rule_set)
 
     def test_custom_style(self):
         with patch.object(pathlib.Path, "exists") as mock_exists:
@@ -171,6 +171,28 @@ class TestCommandLineArgs(unittest.TestCase):
                 )
                 self.assertTrue(any(x.__name__ == "my_rule" for x in rule_set))
                 self.assertEqual(len(rules.GetRulesForStyle(DeploymentStyle.CONFLUENCE)) + 1, len(rule_set))
+
+    def test_rules_module_only_when_using_custom_mode(self):
+        def _is_dir(v):
+            return not v.name.endswith("rules.py")
+
+        with patch.object(pathlib.Path, "exists") as mock_exists:
+            with patch.object(pathlib.Path, "is_dir", new=_is_dir):
+                mock_exists.return_value = True
+                input_dir, output_dir, rule_set, macros, version_name, verbose = cli.parse_args(
+                    [
+                        "--input",
+                        "input_file_path",
+                        "--output",
+                        "output_file_path",
+                        "--style",
+                        "custom",
+                        "--rules",
+                        os.path.join(os.path.dirname(__file__), "data", "rules.py"),
+                    ]
+                )
+                self.assertEqual("my_rule", rule_set[0].__name__)
+                self.assertEqual(1, len(rule_set))
 
     def test_consts_file_isdir(self):
         with patch.object(pathlib.Path, "exists") as mock_exists:

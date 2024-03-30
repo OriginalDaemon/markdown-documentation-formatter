@@ -1,21 +1,25 @@
+from __future__ import annotations
+
 import re
 import os
 import logging
 import inspect
 import functools
 
-from typing import Callable, Tuple, List
+from typing import Callable, Tuple, List, TYPE_CHECKING
 from fnmatch import fnmatch
 from ._consts import Passes, DeploymentStyle, regex_const_macro, regex_function_macro
-from ._processing import ProcessingContext
-from ._document import Document
+
+if TYPE_CHECKING:
+    from ._processing import ProcessingContext
+    from ._document import Document
 
 
 logger = logging.getLogger(__name__)
 
 
 class DocumentRule(object):
-    def __init__(self, function: Callable[[ProcessingContext, Document], None], file_filter: str, pass_index: Passes):
+    def __init__(self, function: Callable[[ProcessingContext, Document], None], file_filter: str, pass_index: Passes = Passes.FIRST):
         """
         Function decorator to create a document processor function. These functions will be called by a
         ProcessingContext to apply augmentations to a file that is loaded in memory.
@@ -26,6 +30,7 @@ class DocumentRule(object):
         """
         self.function = function
         self.file_filter = file_filter
+        self.pass_index = pass_index
         functools.update_wrapper(self, self.function)
 
     def _applies(self, document: Document):
@@ -96,7 +101,8 @@ def _replace_const_macros(context: ProcessingContext, document: Document):
         match, start, end, macroName = _get_next_match(document, pointer, regex_const_macro)
         if not match:
             break
-        if macroName in context.settings.macros:
+        macro = context.settings.macros.get(macroName, None)
+        if macro is not None and not callable(macro):
             document.contents = "".join(
                 [
                     document.contents[:start],
@@ -105,6 +111,12 @@ def _replace_const_macros(context: ProcessingContext, document: Document):
                 ]
             )
             pointer = start
+        elif macro is not None and callable(macro):
+            logger.exception(
+                f"Exception encountered trying to resolve {match.group(0)} as {macroName} is a function, not a "
+                f"const."
+            )
+            pointer = end
         else:
             logger.warning(
                 f"Invalid macro: found {match.group(0)} in {document.input_path}, but no matching macro is defined."
