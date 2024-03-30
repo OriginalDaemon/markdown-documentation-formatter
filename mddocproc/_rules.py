@@ -63,6 +63,31 @@ def document_rule(
     return _inner
 
 
+def _calculate_toc_indent_for_heading(line) -> int:
+    """:return: the indent to use for a heading link in a toc based on the heading size."""
+    return (max(0, len(line) - len(line.lstrip("#")) - 1)) * 2
+
+
+def _create_toc_from_sections(lines):
+    from ._utils import format_markdown_link
+
+    table_entries = []
+    for line in map(lambda x: x.strip(), lines):
+        if line.startswith("#"):
+            indent_size = _calculate_toc_indent_for_heading(line)
+            stripped = line.lstrip("#").strip()
+            table_entries.append((indent_size, " - {}".format(format_markdown_link(stripped, "#{}".format(stripped)))))
+
+    # Use smallest_indent to shift entire toc leftwards as much as we can...
+    smallest_indent = min(x[0] for x in table_entries) if table_entries else 0
+    toc = "\n".join([
+        "{}{}".format(" " * (x[0] - smallest_indent), x[1])
+        for x in table_entries
+    ])
+
+    return toc
+
+
 @document_rule("*.md")
 def create_table_of_contents(context: ProcessingContext, document: Document):
     """
@@ -70,22 +95,13 @@ def create_table_of_contents(context: ProcessingContext, document: Document):
     :param context: The ProcessingContext.
     :param document: The document being processed.
     """
-    from ._utils import format_markdown_link
-
     TABLE_OF_CONTENTS_VARIABLE = "${create_table_of_contents}"
     lines = document.contents.split("\n")
     processed = []
     for i, line in enumerate(lines):
         if TABLE_OF_CONTENTS_VARIABLE in line:
-            table = []
-            for remaining_line in map(lambda x: x.strip(), lines[i + 1 :]):
-                if remaining_line.startswith("#"):
-                    stripped = remaining_line.lstrip("#").strip()
-                    indent_size = max(0, len(remaining_line) - len(remaining_line.lstrip("#")) - 1)
-                    table.append(
-                        "{} - {}".format("  " * indent_size, format_markdown_link(stripped, "#{}".format(stripped)))
-                    )
-            line = line.replace(TABLE_OF_CONTENTS_VARIABLE, "\n".join(table))
+            table = _create_toc_from_sections(lines[i + 1 :])
+            line = line.replace(TABLE_OF_CONTENTS_VARIABLE, table)
         processed.append(line)
     document.contents = "\n".join(processed)
 
