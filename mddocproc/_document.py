@@ -1,25 +1,19 @@
 import os
+from pathlib import Path
 
 from ._utils import make_directory
 
 
 class Document(object):
-    def __init__(self, input_path: str, data: str = ""):
+    def __init__(self, input_path: Path, data: str = ""):
         """
         Holds a file, referenced by path, and it's contents, for manipulation by document rule_set.
         :param input_path: The path to the input file.
         """
-        self.input_path = input_path
-        self.target_path = input_path
-        self.original_contents = data
-        self.contents = data
-
-    @property
-    def parent_dir_name(self) -> str:
-        """
-        :return: The name of the directory in which the document lives.
-        """
-        return os.path.dirname(self.input_path).split(os.path.sep)[-1]
+        self.input_path: Path = input_path
+        self.target_path: Path = Path(input_path)
+        self.original_contents: str = data
+        self.contents: str = data
 
     def set_content(self, content: str):
         """

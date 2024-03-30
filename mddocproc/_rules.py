@@ -6,9 +6,11 @@ import logging
 import inspect
 import functools
 
-from typing import Callable, Tuple, List, TYPE_CHECKING
+from pathlib import Path
 from fnmatch import fnmatch
-from ._consts import Passes, DeploymentStyle, regex_const_macro, regex_function_macro
+from urllib.parse import unquote
+from typing import Callable, Tuple, List, TYPE_CHECKING
+from ._consts import Passes, DeploymentStyle, regex_const_macro, regex_function_macro, regex_markdown_link
 
 if TYPE_CHECKING:
     from ._processing import ProcessingContext
@@ -63,6 +65,19 @@ def document_rule(
     return _inner
 
 
+def _get_next_match(document: Document, pointer: int, regex: re.Pattern) -> Tuple[re.Match | None, int, int]:
+    match = re.search(regex, document.contents[pointer:])
+    """:type: re.Match"""
+    if not match:
+        return None, 0, 0
+    start, end = match.span(0)[0] + pointer, match.span(0)[1] + pointer
+    return match, start, end
+
+
+def _replace_span(document: Document, start: int, end: int, replacement: str) -> str:
+    return "".join([document.contents[:start], replacement, document.contents[end:]])
+
+
 def _calculate_toc_indent_for_heading(line) -> int:
     """:return: the indent to use for a heading link in a toc based on the heading size."""
     return (max(0, len(line) - len(line.lstrip("#")) - 1)) * 2
@@ -103,31 +118,16 @@ def create_table_of_contents(context: ProcessingContext, document: Document):
     document.contents = "\n".join(processed)
 
 
-def _get_next_match(document: Document, pointer: int, regex: re.Pattern) -> Tuple[re.Match | None, int, int, str]:
-    match = re.search(regex, document.contents[pointer:])
-    """:type: re.Match"""
-    if not match:
-        return None, 0, 0, ""
-    start, end = match.span(0)[0] + pointer, match.span(0)[1] + pointer
-    macroName = match.group(1)
-    return match, start, end, macroName
-
-
 def _replace_const_macros(context: ProcessingContext, document: Document):
     pointer = 0
     while pointer < len(document.contents):
-        match, start, end, macroName = _get_next_match(document, pointer, regex_const_macro)
+        match, start, end = _get_next_match(document, pointer, regex_const_macro)
         if not match:
             break
+        macroName = match.group(1)
         macro = context.settings.macros.get(macroName, None)
         if macro is not None and not callable(macro):
-            document.contents = "".join(
-                [
-                    document.contents[:start],
-                    context.settings.macros[macroName],
-                    document.contents[end:],
-                ]
-            )
+            document.contents = _replace_span(document, start, end, context.settings.macros[macroName])
             pointer = start
         elif macro is not None and callable(macro):
             logger.exception(
@@ -173,21 +173,16 @@ def _run_function_macro(
 def _replace_function_macros(context: ProcessingContext, document: Document):
     pointer = 0
     while pointer < len(document.contents):
-        match, start, end, macroName = _get_next_match(document, pointer, regex_function_macro)
+        match, start, end = _get_next_match(document, pointer, regex_function_macro)
         if not match:
             break
+        macroName = match.group(1)
         success = False
         if macroName in context.settings.macros:
             args = _extract_args(match.group(2))
             success, value = _run_function_macro(context, macroName, args, match.group(0))
             if success:
-                document.contents = "".join(
-                    [
-                        document.contents[:start],
-                        value,
-                        document.contents[end:],
-                    ]
-                )
+                document.contents = _replace_span(document, start, end, value)
         else:
             logger.warning(
                 f"Invalid macro: found {match.group(0)} in {document.input_path}, but no matching macro is defined."
@@ -216,7 +211,18 @@ def santize_internal_links(context: ProcessingContext, document: Document):
     :param context: The ProcessingContext.
     :param document: The document being processed.
     """
-    pass  # TODO: fill this in
+    pointer = 0
+    while pointer < len(document.contents):
+        match, start, end = _get_next_match(document, pointer, regex_markdown_link)
+        if not match:
+            break
+        pointer = end
+        text, link = match.group(1), match.group(2)
+        link = unquote(link)
+        path = Path(document.input_path.parent).joinpath(link).resolve()
+        if path.exists():
+            reformatted_link = f"[{text}](<{link}>)"
+            document.contents = _replace_span(document, start, end, reformatted_link)
 
 
 @document_rule()

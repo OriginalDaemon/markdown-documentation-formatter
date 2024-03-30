@@ -64,7 +64,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
       - name: install pytest-cov
-        run: pip install pytest pytest-cov
+        run: pip install pytest pytest-cov pytest-subtest
       - name: install dependencies
         run: pip install -e .[test]
       - name: run pytest --cov

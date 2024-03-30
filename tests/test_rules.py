@@ -1,4 +1,7 @@
 import unittest
+from pathlib import Path
+from unittest.mock import patch
+
 from mddocproc import ProcessingSettings, ProcessingContext, Document, rules
 
 
@@ -7,7 +10,7 @@ class TestTableOfContents(unittest.TestCase):
         context = ProcessingContext(ProcessingSettings())
         input_md = "# Title\n" "## Table of contents\n" "${create_table_of_contents}\n" "...\n" "...\n" "...\n"
         expected = "# Title\n" "## Table of contents\n" "\n" "...\n" "...\n" "...\n"
-        doc = Document("test.md", input_md)
+        doc = Document(Path("test.md"), input_md)
         rules.create_table_of_contents(context, doc)
         self.assertEqual(expected, doc.contents)
 
@@ -47,7 +50,7 @@ class TestTableOfContents(unittest.TestCase):
             "### Subsection 2.1\n"
             "...\n"
         )
-        doc = Document("test.md", input_md)
+        doc = Document(Path("test.md"), input_md)
         rules.create_table_of_contents(context, doc)
         self.assertEqual(expected, doc.contents)
 
@@ -56,14 +59,14 @@ class TestApplyMacros(unittest.TestCase):
     def test_single_const_macro(self):
         settings = ProcessingSettings(macros={"hello": "world"})
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example macro ${hello}")
+        doc = Document(Path("test.md"), "Example macro ${hello}")
         rules.apply_macros(context, doc)
         self.assertEqual("Example macro world", doc.contents)
 
     def test_multiple_const_macros(self):
         settings = ProcessingSettings(macros={"hello": "world", "hello2": "world2"})
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example macro ${hello} and another ${hello2}")
+        doc = Document(Path("test.md"), "Example macro ${hello} and another ${hello2}")
         rules.apply_macros(context, doc)
         self.assertEqual("Example macro world and another world2", doc.contents)
 
@@ -74,14 +77,14 @@ class TestApplyMacros(unittest.TestCase):
             }
         )
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example macro ${hello()}")
+        doc = Document(Path("test.md"), "Example macro ${hello()}")
         rules.apply_macros(context, doc)
         self.assertEqual("Example macro world", doc.contents)
 
     def test_multiple_function_macros_no_args(self):
         settings = ProcessingSettings(macros={"hello": lambda: "world", "hello2": lambda: "world2"})
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example macro ${hello()} and another ${hello2()}")
+        doc = Document(Path("test.md"), "Example macro ${hello()} and another ${hello2()}")
         rules.apply_macros(context, doc)
         self.assertEqual("Example macro world and another world2", doc.contents)
 
@@ -92,7 +95,7 @@ class TestApplyMacros(unittest.TestCase):
             }
         )
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example macro ${hello(a, b)}")
+        doc = Document(Path("test.md"), "Example macro ${hello(a, b)}")
         rules.apply_macros(context, doc)
         self.assertEqual("Example macro x=a y=b", doc.contents)
 
@@ -104,14 +107,14 @@ class TestApplyMacros(unittest.TestCase):
             }
         )
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example macro ${hello(a, b)} and another ${hello2(c, d, e)}")
+        doc = Document(Path("test.md"), "Example macro ${hello(a, b)} and another ${hello2(c, d, e)}")
         rules.apply_macros(context, doc)
         self.assertEqual("Example macro x=a y=b and another x=c y=d z=e", doc.contents)
 
     def test_const_not_defined(self):
         settings = ProcessingSettings(macros={})
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example macro ${hello}")
+        doc = Document(Path("test.md"), "Example macro ${hello}")
         with self.assertLogs("mddocproc", level="WARNING"):
             rules.apply_macros(context, doc)
         self.assertEqual("Example macro ${hello}", doc.contents)
@@ -119,7 +122,7 @@ class TestApplyMacros(unittest.TestCase):
     def test_function_not_defined(self):
         settings = ProcessingSettings(macros={})
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example macro ${hello()}")
+        doc = Document(Path("test.md"), "Example macro ${hello()}")
         with self.assertLogs("mddocproc", level="WARNING"):
             rules.apply_macros(context, doc)
         self.assertEqual("Example macro ${hello()}", doc.contents)
@@ -127,7 +130,7 @@ class TestApplyMacros(unittest.TestCase):
     def test_function_with_const(self):
         settings = ProcessingSettings(macros={"hello": lambda x: f"x={x}", "hello2": "world2"})
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example macro ${hello(${hello2})}")
+        doc = Document(Path("test.md"), "Example macro ${hello(${hello2})}")
         rules.apply_macros(context, doc)
         self.assertEqual("Example macro x=world2", doc.contents)
 
@@ -138,7 +141,7 @@ class TestApplyMacros(unittest.TestCase):
             }
         )
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example macro ${hello(a)}")
+        doc = Document(Path("test.md"), "Example macro ${hello(a)}")
         with self.assertLogs("mddocproc", level="ERROR"):
             rules.apply_macros(context, doc)
         self.assertEqual("Example macro ${hello(a)}", doc.contents)
@@ -150,7 +153,7 @@ class TestApplyMacros(unittest.TestCase):
             }
         )
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example macro ${hello(a)}")
+        doc = Document(Path("test.md"), "Example macro ${hello(a)}")
         with self.assertLogs("mddocproc", level="ERROR"):
             rules.apply_macros(context, doc)
         self.assertEqual("Example macro ${hello(a)}", doc.contents)
@@ -165,7 +168,7 @@ class TestApplyMacros(unittest.TestCase):
             }
         )
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example macro ${hello()}")
+        doc = Document(Path("test.md"), "Example macro ${hello()}")
         with self.assertLogs("mddocproc", level="ERROR"):
             rules.apply_macros(context, doc)
         self.assertEqual("Example macro ${hello()}", doc.contents)
@@ -178,13 +181,95 @@ class TestApplyMacros(unittest.TestCase):
             }
         )
         context = ProcessingContext(settings)
-        doc = Document("test.md", "Example without any macros in it.")
+        doc = Document(Path("test.md"), "Example without any macros in it.")
         rules.apply_macros(context, doc)
         self.assertEqual("Example without any macros in it.", doc.contents)
 
 
 class TestSanitizeInternalLinks(unittest.TestCase):
-    pass
+    def test_external_link_unchanged(self):
+        context = ProcessingContext(ProcessingSettings())
+        input_md = "[link](https://www.google.com)"
+        expected = input_md
+        doc = Document(Path("test.md"), input_md)
+        rules.santize_internal_links(context, doc)
+        self.assertEqual(expected, doc.contents)
+
+    def test_internal_file_relative_link(self):
+        def _exists(v: Path):
+            return all(x == y for x, y in zip(v.parts[-3:], ["docs", "sub dir", "relative - file.md"]))
+        cases = [
+            "[link](<../sub dir/relative - file.md>)",
+            "[link](../sub%20dir/relative%20-%20file.md)",
+            "[link](<../sub%20dir/relative%20-%20file.md>)",
+            "[link](../sub-dir/relative---file.md)",
+            "[link](<../sub-dir/relative---file.md>)",
+        ]
+        expected = "[link](<../sub dir/relative - file.md>)"
+        context = ProcessingContext(ProcessingSettings())
+        for i, case in enumerate(cases):
+            with self.subTest(i=i):
+                doc = Document(Path("docs/test dir/test.md"), case)
+                with patch.object(Path, "exists", new=_exists):
+                    rules.santize_internal_links(context, doc)
+                self.assertEqual(expected, doc.contents)
+
+    def test_internal_file_relative_link_with_subsection(self):
+        def _exists(v: Path):
+            return all(x == y for x, y in zip(v.parts[-3:], ["docs", "sub dir", "relative - file.md"]))
+        cases = [
+            "[link](<../sub dir/relative - file.md#sub section>)",
+            "[link](../sub%20dir/relative%20-%20file.md#sub%20section)",
+            "[link](<../sub%20dir/relative%20-%20file.md#sub%20section>)",
+            "[link](../sub-dir/relative---file.md#sub-section)",
+            "[link](<../sub-dir/relative---file.md#sub-section>)",
+        ]
+        expected = "[link](<../sub dir/relative - file.md#sub section>)"
+        context = ProcessingContext(ProcessingSettings())
+        for i, case in enumerate(cases):
+            with self.subTest(i=i):
+                doc = Document(Path("docs/test dir/test.md"), case)
+                with patch.object(Path, "exists", new=_exists):
+                    rules.santize_internal_links(context, doc)
+                self.assertEqual(expected, doc.contents)
+
+    def test_internal_root_relative_link(self):
+        def _exists(v: Path):
+            return all(x == y for x, y in zip(v.parts[-3:], ["docs", "sub dir", "relative - file.md"]))
+        cases = [
+            "[link](<docs/sub dir/relative - file.md>)",
+            "[link](docs/sub%20dir/relative%20-%20file.md)",
+            "[link](<docs/sub%20dir/relative%20-%20file.md>)",
+            "[link](docs/sub-dir/relative---file.md)",
+            "[link](<docs/sub-dir/relative---file.md>)",
+        ]
+        expected = "[link](<../sub dir/relative - file.md>)"
+        context = ProcessingContext(ProcessingSettings())
+        for i, case in enumerate(cases):
+            with self.subTest(i=i):
+                doc = Document(Path("docs/test dir/test.md"), case)
+                with patch.object(Path, "exists", new=_exists):
+                    rules.santize_internal_links(context, doc)
+                self.assertEqual(expected, doc.contents)
+
+    def test_internal_root_relative_link_with_subsection(self):
+        def _exists(v: Path):
+            return all(x == y for x, y in zip(v.parts[-3:], ["docs", "sub dir", "relative - file.md"]))
+        cases = [
+            "[link](<docs/sub dir/relative - file.md#sub section>)",
+            "[link](docs/sub%20dir/relative%20-%20file.md#sub%20section)",
+            "[link](<docs/sub%20dir/relative%20-%20file.md#sub%20section>)",
+            "[link](docs/sub-dir/relative---file.md#sub-section)",
+            "[link](<docs/sub-dir/relative---file.md#sub-section>)",
+        ]
+        expected = "[link](<../sub dir/relative - file.md>)"
+        context = ProcessingContext(ProcessingSettings())
+        for i, case in enumerate(cases):
+            with self.subTest(msg=case, i=i):
+                doc = Document(Path("docs/test dir/test.md"), case)
+                with patch.object(Path, "exists", new=_exists):
+                    rules.santize_internal_links(context, doc)
+                self.assertEqual(expected, doc.contents)
 
 
 class TestMoveToTargetDirRelative(unittest.TestCase):
