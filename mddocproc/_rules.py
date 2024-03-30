@@ -80,10 +80,7 @@ def _create_toc_from_sections(lines):
 
     # Use smallest_indent to shift entire toc leftwards as much as we can...
     smallest_indent = min(x[0] for x in table_entries) if table_entries else 0
-    toc = "\n".join([
-        "{}{}".format(" " * (x[0] - smallest_indent), x[1])
-        for x in table_entries
-    ])
+    toc = "\n".join(["{}{}".format(" " * (x[0] - smallest_indent), x[1]) for x in table_entries])
 
     return toc
 

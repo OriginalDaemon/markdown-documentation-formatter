@@ -5,22 +5,8 @@ from mddocproc import ProcessingSettings, ProcessingContext, Document, rules
 class TestTableOfContents(unittest.TestCase):
     def test_empty_toc(self):
         context = ProcessingContext(ProcessingSettings())
-        input_md = (
-            "# Title\n"
-            "## Table of contents\n"
-            "${create_table_of_contents}\n"
-            "...\n"
-            "...\n"
-            "...\n"
-        )
-        expected = (
-            "# Title\n"
-            "## Table of contents\n"
-            "\n"
-            "...\n"
-            "...\n"
-            "...\n"
-        )
+        input_md = "# Title\n" "## Table of contents\n" "${create_table_of_contents}\n" "...\n" "...\n" "...\n"
+        expected = "# Title\n" "## Table of contents\n" "\n" "...\n" "...\n" "...\n"
         doc = Document("test.md", input_md)
         rules.create_table_of_contents(context, doc)
         self.assertEqual(expected, doc.contents)
