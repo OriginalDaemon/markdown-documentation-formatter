@@ -92,7 +92,7 @@ def process_glossary(glossary: str) -> List[Tuple[str, str]]:
     for i in range(len(lines)):
         line = lines[i].strip()
         if line.startswith("##"):
-            term = line[len(line) - len(line.lstrip("#")):].strip()
+            term = line[len(line) - len(line.lstrip("#")) :].strip()
             link = f"#{term}"
             glossary_data.append((term.lower(), link))
             for i in range(i + 1, len(lines)):
