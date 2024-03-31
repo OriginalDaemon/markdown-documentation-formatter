@@ -6,7 +6,7 @@ from typing import Dict, List, TYPE_CHECKING
 from pathlib import Path
 
 if TYPE_CHECKING:
-    from ._rules import DocumentRule
+    from .rules import DocumentRule
 
 
 class ProcessingSettings(object):

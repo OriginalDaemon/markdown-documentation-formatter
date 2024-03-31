@@ -8,8 +8,7 @@ from typing import Tuple, List, Dict
 from mddocproc import (
     DeploymentStyle,
     process_docs,
-    load_macros_from_py_file,
-    load_custom_rules_from_py_file,
+    loading,
     rules,
     DocumentRule,
     FunctionMacro,
@@ -95,12 +94,12 @@ def parse_args(
         parser.error("You must provide a module with custom rules to use the custom deployment style.")
 
     if args.rules is not None:
-        rule_set.extend(load_custom_rules_from_py_file(args.rules))
+        rule_set.extend(loading.load_custom_rules_from_py_file(args.rules))
 
     const_macros: Dict[str, str] = {}
     function_macros: Dict[str, FunctionMacro] = {}
     if args.macros is not None:
-        const_macros, function_macros = load_macros_from_py_file(args.macros)
+        const_macros, function_macros = loading.load_macros_from_py_file(args.macros)
 
     return args.input, args.output, rule_set, const_macros, function_macros, args.version, args.verbose
 
