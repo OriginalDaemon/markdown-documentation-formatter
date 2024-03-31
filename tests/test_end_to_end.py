@@ -14,11 +14,16 @@ from pathlib import Path
 class TestLoading(unittest.TestCase):
     def test_process_test_docs_confluence_style(self):
         with tempfile.TemporaryDirectory(prefix="mddocproc") as tempdir:
-            cli.main([
-                    "--input", str(Path(__file__).parent / "data" / "docs"),
-                    "--output", tempdir,
-                    "--style", "confluence",
-                    "--version", "test",
+            cli.main(
+                [
+                    "--input",
+                    str(Path(__file__).parent / "data" / "docs"),
+                    "--output",
+                    tempdir,
+                    "--style",
+                    "confluence",
+                    "--version",
+                    "test",
                 ]
             )
             files = list(Path(tempdir).glob("**/*.*"))
@@ -26,11 +31,16 @@ class TestLoading(unittest.TestCase):
 
     def test_process_test_docs_github_style(self):
         with tempfile.TemporaryDirectory(prefix="mddocproc") as tempdir:
-            cli.main([
-                    "--input", str(Path(__file__).parent / "data" / "docs"),
-                    "--output", tempdir,
-                    "--style", "github",
-                    "--version", "test",
+            cli.main(
+                [
+                    "--input",
+                    str(Path(__file__).parent / "data" / "docs"),
+                    "--output",
+                    tempdir,
+                    "--style",
+                    "github",
+                    "--version",
+                    "test",
                 ]
             )
             files = list(Path(tempdir).glob("**/*.*"))
