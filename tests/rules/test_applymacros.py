@@ -134,5 +134,5 @@ class TestApplyMacros(unittest.TestCase):
         self.assertEqual("Example without any macros in it.", doc.contents)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

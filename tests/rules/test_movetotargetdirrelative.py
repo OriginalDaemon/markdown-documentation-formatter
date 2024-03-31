@@ -40,5 +40,5 @@ class TestMoveToTargetDirRelative(unittest.TestCase):
         self.assertEqual(Path(__file__).parent / "data" / "processed" / "beta" / "sub dir" / "test.md", doc.target_path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
