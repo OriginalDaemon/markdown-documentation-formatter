@@ -70,6 +70,22 @@ class ProcessingContext(object):
             doc = self.documents.get(self.settings.root_directory / path, None)
         return doc
 
+    def get_document_by_name(self, name: str) -> Document | None:
+        """
+        Find a document by name. Finds the first one, which isn't guaranteed to be unique.
+        :param name: The name of the document.
+        :return: The document or None if no document with the given name could be found.
+        """
+        # try exact match
+        for doc in self.documents.values():
+            if name == doc.input_path.name:
+                return doc
+        # try match without extension
+        for doc in self.documents.values():
+            if name == doc.input_path.stem:
+                return doc
+        return None
+
     def run(self):
         for i in range(len(Passes)):
             for document in self.documents.values():

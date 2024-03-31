@@ -86,6 +86,8 @@ def process_glossary(glossary: str) -> List[Tuple[str, str]]:
     """
     Processes glossary data, loaded from a file, and returns a list of terms for later use. List is sorted from
     longest to shortest term.
+    The list is a tuple of: term/phrase, term subsection
+    e.g. [(a term, #A Term), (synonym of a term, #A Term), ...]
     """
     glossary_data: List[Tuple[str, str]] = []
     lines = glossary.split("\n")
@@ -93,8 +95,8 @@ def process_glossary(glossary: str) -> List[Tuple[str, str]]:
         line = lines[i].strip()
         if line.startswith("##"):
             term = line[len(line) - len(line.lstrip("#")) :].strip()
-            link = f"#{term}"
-            glossary_data.append((term.lower(), link))
+            section = term
+            glossary_data.append((term.lower(), section))
             for i in range(i + 1, len(lines)):
                 line = lines[i].strip()
                 match = re.search(regex_glossary_synonyms, line.lower())
@@ -103,8 +105,10 @@ def process_glossary(glossary: str) -> List[Tuple[str, str]]:
                     break
                 elif match:
                     for synonym in list(map(lambda x: x.strip(), match.group(1).split(","))):
-                        glossary_data.append((synonym.lower(), link))
+                        glossary_data.append((synonym.lower(), section))
                     break
+
+    glossary_data.sort(key=lambda x: len(x[0]), reverse=True)
     return glossary_data
 
 

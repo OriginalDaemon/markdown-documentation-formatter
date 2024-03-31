@@ -4,7 +4,7 @@ import logging
 import inspect
 
 from ._base import document_rule
-from ._utils import _get_next_match, _replace_span
+from ._utils import get_next_match, replace_span
 from .._consts import regex_const_macro, regex_function_macro
 
 from typing import Tuple, TYPE_CHECKING
@@ -20,13 +20,13 @@ logger = logging.getLogger(__name__)
 def _replace_const_macros(context: ProcessingContext, document: Document):
     pointer = 0
     while pointer < len(document.contents):
-        match, start, end = _get_next_match(document, pointer, regex_const_macro)
+        match, start, end = get_next_match(document, pointer, regex_const_macro)
         if not match:
             break
         macroName = match.group(1)
         macro = context.settings.const_macros.get(macroName, None)
         if macro is not None:
-            document.contents = _replace_span(document, start, end, context.settings.const_macros[macroName])
+            document.contents = replace_span(document, start, end, context.settings.const_macros[macroName])
             pointer = start
         elif macro is None and context.settings.function_macros.get(macroName, None) is not None:
             logger.exception(
@@ -65,7 +65,7 @@ def _run_function_macro(
 def _replace_function_macros(context: ProcessingContext, document: Document):
     pointer = 0
     while pointer < len(document.contents):
-        match, start, end = _get_next_match(document, pointer, regex_function_macro)
+        match, start, end = get_next_match(document, pointer, regex_function_macro)
         if not match:
             break
         macroName = match.group(1)
@@ -74,7 +74,7 @@ def _replace_function_macros(context: ProcessingContext, document: Document):
             args = _extract_args(match.group(2))
             value = _run_function_macro(context, macroName, args, match.group(0))
             if value is not None:
-                document.contents = _replace_span(document, start, end, value)
+                document.contents = replace_span(document, start, end, value)
         elif macroName in context.settings.const_macros:
             logger.exception(
                 f"Exception encountered trying to resolve {match.group(0)} as {macroName} is not a function."

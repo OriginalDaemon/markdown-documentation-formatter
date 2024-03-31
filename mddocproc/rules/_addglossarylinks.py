@@ -1,12 +1,37 @@
 from __future__ import annotations
 
+import re
+import logging
+
+from .._consts import regex_any_markdown_link
 from ._base import document_rule
+from ._utils import form_relative_link, replace_span, format_markdown_link
 
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:  # pragma: no cover
     from .._processing import ProcessingContext
     from .._document import Document
+
+
+logger = logging.getLogger(__name__)
+
+
+def _is_inside_markdown_link(index: int, pointer: int, document: Document) -> int:
+    """
+    Work out if a given char index is inside of a markdown link.
+    :param index: The index of the string you're looking at.
+    :param pointer: The current index of the document we're searching from.
+    :param document: The document to find markdown links within.
+    :return: The index of the end of the markdown link you're within, if you're within one. -1 otherwise.
+    """
+    for match in re.finditer(regex_any_markdown_link, document.contents[pointer:]):
+        start, end = match.span(0)[0] + pointer, match.span(0)[1] + pointer
+        if start < index < end:
+            return end
+        elif index < start:
+            break
+    return -1
 
 
 @document_rule("*.md")
@@ -18,4 +43,27 @@ def add_glossary_links(context: ProcessingContext, document: Document):
     :param context: The ProcessingContext.
     :param document: The document being processed.
     """
-    pass
+    from .. import loading
+
+    glossary = context.get_document_by_name("glossary.md")
+    if not glossary:
+        logger.warning("Cannot find a glossary.md file, therefore skipping add_glossary_links.")
+    else:
+        glossary_data = loading.process_glossary(glossary.original_contents)
+        link = form_relative_link(document, glossary)
+        for term, section in glossary_data:
+            pointer = 0
+            while pointer < len(document.contents):
+                match_index = document.contents[pointer:].lower().find(term)
+                if match_index < 0:
+                    break
+                else:
+                    match_index += pointer
+                    link_index = _is_inside_markdown_link(match_index, pointer, document)
+                    if link_index >= 0:
+                        pointer = link_index
+                    else:
+                        start, end = match_index, match_index + len(term)
+                        markdown_link = format_markdown_link(document.contents[start: end], link, section)
+                        document.contents = replace_span(document, start, end, markdown_link)
+                        break

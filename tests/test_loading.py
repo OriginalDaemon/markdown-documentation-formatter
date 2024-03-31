@@ -48,11 +48,11 @@ class TestLoading(unittest.TestCase):
     def test_process_glossary(self):
         glossary_data = loading.process_glossary(GLOSSARY_TEXT)
         expected = [
-            ("example", "#Example"),
-            ("demo", "#Example"),
-            ("demonstration", "#Example"),
-            ("test term", "#Test Term"),
-            ("example term", "#Test Term"),
-            ("trial word", "#Test Term"),
+            ("demonstration", "Example"),
+            ("example term", "Test Term"),
+            ("trial word", "Test Term"),
+            ("test term", "Test Term"),
+            ("example", "Example"),
+            ("demo", "Example"),
         ]
         self.assertListEqual(expected, glossary_data)
