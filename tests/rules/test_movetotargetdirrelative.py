@@ -8,7 +8,7 @@ class TestMoveToTargetDirRelative(unittest.TestCase):
     def test_move_root_dir_file(self):
         settings = ProcessingSettings(
             root_directory=Path(__file__).parent / "data" / "docs",
-            target_directory=Path(__file__).parent / "data" / "processed"
+            target_directory=Path(__file__).parent / "data" / "processed",
         )
         context = ProcessingContext(settings)
         doc = Document(Path(__file__).parent / "data" / "docs" / "test.md", "")
@@ -19,7 +19,7 @@ class TestMoveToTargetDirRelative(unittest.TestCase):
     def test_move_sub_dir_file(self):
         settings = ProcessingSettings(
             root_directory=Path(__file__).parent / "data" / "docs",
-            target_directory=Path(__file__).parent / "data" / "processed"
+            target_directory=Path(__file__).parent / "data" / "processed",
         )
         context = ProcessingContext(settings)
         doc = Document(Path(__file__).parent / "data" / "docs" / "sub dir" / "test.md", "")
@@ -31,7 +31,7 @@ class TestMoveToTargetDirRelative(unittest.TestCase):
         settings = ProcessingSettings(
             root_directory=Path(__file__).parent / "data" / "docs",
             target_directory=Path(__file__).parent / "data" / "processed",
-            version_name="beta"
+            version_name="beta",
         )
         context = ProcessingContext(settings)
         doc = Document(Path(__file__).parent / "data" / "docs" / "sub dir" / "test.md", "")
