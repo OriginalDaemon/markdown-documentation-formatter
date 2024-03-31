@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import logging
 
-from .._consts import regex_any_markdown_link
+from .._consts import regex_markdown_link
 from ._base import document_rule
 from ._utils import form_relative_link, replace_span, format_markdown_link
 
@@ -25,7 +25,7 @@ def _is_inside_markdown_link(index: int, pointer: int, document: Document) -> in
     :param document: The document to find markdown links within.
     :return: The index of the end of the markdown link you're within, if you're within one. -1 otherwise.
     """
-    for match in re.finditer(regex_any_markdown_link, document.contents[pointer:]):
+    for match in re.finditer(regex_markdown_link, document.contents[pointer:]):
         start, end = match.span(0)[0] + pointer, match.span(0)[1] + pointer
         if start < index < end:
             return end

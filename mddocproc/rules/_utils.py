@@ -61,8 +61,7 @@ def get_next_match(document: Document, pointer: int, regex: re.Pattern) -> Tuple
     index in the document contents string. Used to be able to go through a file bit by bit and process each match one at
     a time, while avoiding getting stuck on a match that isn't processed into something that doesn't match.
     """
-    match = re.search(regex, document.contents[pointer:])
-    """:type: re.Match"""
+    match: re.Match | None = re.search(regex, document.contents[pointer:])
     if not match:
         return None, 0, 0
     start, end = match.span(0)[0] + pointer, match.span(0)[1] + pointer
