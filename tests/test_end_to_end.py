@@ -14,6 +14,7 @@ from pathlib import Path
 class TestLoading(unittest.TestCase):
     def test_process_test_docs_confluence_style(self):
         with tempfile.TemporaryDirectory(prefix="mddocproc") as tempdir:
+            tempdir = "C:\\Users\\jonathanp\\desktop\\docs"
             cli.main(
                 [
                     "--input",
@@ -31,6 +32,7 @@ class TestLoading(unittest.TestCase):
 
     def test_process_test_docs_github_style(self):
         with tempfile.TemporaryDirectory(prefix="mddocproc") as tempdir:
+            # tempdir = "C:\\Users\\jonathanp\\desktop\\docs"
             cli.main(
                 [
                     "--input",

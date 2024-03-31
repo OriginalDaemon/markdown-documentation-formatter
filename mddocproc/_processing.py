@@ -80,9 +80,17 @@ class ProcessingContext(object):
         for doc in self.documents.values():
             if name == doc.input_path.name:
                 return doc
+        # try case insensitive
+        for doc in self.documents.values():
+            if name == doc.input_path.name.lower():
+                return doc
         # try match without extension
         for doc in self.documents.values():
             if name == doc.input_path.stem:
+                return doc
+        # try match without extension, with case insensitivity
+        for doc in self.documents.values():
+            if name == doc.input_path.stem.lower():
                 return doc
         return None
 

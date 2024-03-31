@@ -17,10 +17,10 @@ An example of a multi-word term.
 
 class TestGlossaryLinks(unittest.TestCase):
     @staticmethod
-    def _createContext():
+    def _createContext(glossary_file_name="glossary.md"):
         settings = ProcessingSettings(root_directory=Path(__file__).parent / "data" / "docs")
         context = ProcessingContext(settings)
-        context.add_document(Document(settings.root_directory / "glossary data" / "glossary.md", GLOSSARY_TEXT))
+        context.add_document(Document(settings.root_directory / "glossary data" / glossary_file_name, GLOSSARY_TEXT))
         return context
 
     def test_link_term(self):
@@ -77,6 +77,12 @@ class TestGlossaryLinks(unittest.TestCase):
             "[Example](<../glossary data/glossary.md#Example>).",
             doc.contents,
         )
+
+    def test_glossary_case_insensitive_glossary_filename(self):
+        context = self._createContext("Glossary.md")
+        doc = Document(Path(context.settings.root_directory / "test" / "test.md"), "Here is an Example of something.")
+        rules.add_glossary_links(context, doc)
+        self.assertEqual("Here is an [Example](<../glossary data/Glossary.md#Example>) of something.", doc.contents)
 
 
 if __name__ == "__main__":
