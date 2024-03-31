@@ -64,6 +64,6 @@ def add_glossary_links(context: ProcessingContext, document: Document):
                         pointer = link_index
                     else:
                         start, end = match_index, match_index + len(term)
-                        markdown_link = format_markdown_link(document.contents[start: end], link, section)
+                        markdown_link = format_markdown_link(document.contents[start:end], link, section)
                         document.contents = replace_span(document, start, end, markdown_link)
                         break
