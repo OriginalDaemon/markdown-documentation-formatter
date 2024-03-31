@@ -18,10 +18,7 @@ def format_markdown_link(text: str, relative_path: str, section: str | None = No
 
 
 def format_document_markdown_link(
-    text: str,
-    source_document: Document,
-    linked_document: Document,
-    section: str | None = None
+    text: str, source_document: Document, linked_document: Document, section: str | None = None
 ):
     """
     Creates a well formatted, relative markdown link from one document to a subsection of another.
