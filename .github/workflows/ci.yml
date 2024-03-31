@@ -81,6 +81,11 @@ jobs:
           parallel: true
           flag-name: python-${{ matrix.python-version }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload coverage results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ matrix.python-version }}
+          path: coverage.xml
   coveralls-finish:
     needs: pytest
     runs-on: ubuntu-latest
