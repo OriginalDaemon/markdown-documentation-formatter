@@ -63,4 +63,3 @@ def santize_internal_links(context: ProcessingContext, document: Document):
             section = _process_section_reference(section, linked_document)
             reformatted_link = format_document_markdown_link(text, document, linked_document, section)
             document.contents = replace_span(document, start, pointer, reformatted_link)
-

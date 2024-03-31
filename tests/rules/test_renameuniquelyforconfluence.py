@@ -63,5 +63,5 @@ class TestRenameUniquelyForConfluence(unittest.TestCase):
         self.assertEqual(expected, doc.target_path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
