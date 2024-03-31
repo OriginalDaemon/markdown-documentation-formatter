@@ -10,6 +10,7 @@ from ._utils import _get_next_match, _replace_span
 from .._consts import regex_markdown_link, regex_markdown_link_with_subsection
 
 from typing import Tuple, TYPE_CHECKING
+
 if TYPE_CHECKING:
     from .._processing import ProcessingContext
     from .._document import Document
