@@ -3,6 +3,7 @@ from __future__ import annotations
 from ._base import document_rule
 
 from typing import TYPE_CHECKING
+
 if TYPE_CHECKING:  # pragma: no cover
     from .._processing import ProcessingContext
     from .._document import Document
