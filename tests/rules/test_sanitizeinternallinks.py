@@ -80,6 +80,21 @@ class TestSanitizeInternalLinks(unittest.TestCase):
                 rules.santize_internal_links(context, doc)
                 self.assertEqual(expected, doc.contents)
 
+    def test_internal_root_relative_link_with_subsection_and_special_characters(self):
+        cases = [
+            "[link %20-/.,](<sub dir/relative - file.md#sub - section>)",
+            "[link %20-/.,](sub%20dir/relative%20-%20file.md#sub%20-%20section)",
+            "[link %20-/.,](<sub%20dir/relative%20-%20file.md#sub%20-%20section>)",
+            "[link %20-/.,](sub%20dir/relative%20-%20file.md#sub---section)",
+            "[link %20-/.,](<sub%20dir/relative%20-%20file.md#sub---section>)",
+        ]
+        expected = "[link %20-/.,](<../sub dir/relative - file.md#sub - section>)"
+        for i, case in enumerate(cases):
+            with self.subTest(i=i):
+                context, doc = self._create_test_data(case)
+                rules.santize_internal_links(context, doc)
+                self.assertEqual(expected, doc.contents)
+
     def test_linked_document_not_found(self):
         case = (
             "Replicate a bug found by providing a link to a non existant file"
@@ -92,6 +107,21 @@ class TestSanitizeInternalLinks(unittest.TestCase):
         context, doc = self._create_test_data(case)
         rules.santize_internal_links(context, doc)
         self.assertEqual(expected, doc.contents)
+
+    def test_subsection_case_insensitive(self):
+        cases = [
+            "[link %20-/.,](<sub dir/relative - file.md#SuB - SeCtIoN>)",
+            "[link %20-/.,](sub%20dir/relative%20-%20file.md#SuB%20-%20SeCtIoN)",
+            "[link %20-/.,](<sub%20dir/relative%20-%20file.md#SuB%20-%20SeCtIoN>)",
+            "[link %20-/.,](sub%20dir/relative%20-%20file.md#SuB---SeCtIoN)",
+            "[link %20-/.,](<sub%20dir/relative%20-%20file.md#SuB---SeCtIoN>)",
+        ]
+        expected = "[link %20-/.,](<../sub dir/relative - file.md#sub - section>)"
+        for i, case in enumerate(cases):
+            with self.subTest(i=i):
+                context, doc = self._create_test_data(case)
+                rules.santize_internal_links(context, doc)
+                self.assertEqual(expected, doc.contents)
 
 
 if __name__ == "__main__":

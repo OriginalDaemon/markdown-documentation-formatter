@@ -5,7 +5,7 @@ import re
 from urllib.parse import unquote
 from ._base import document_rule
 from ._utils import get_next_match, replace_span, format_document_markdown_link
-from .._consts import regex_markdown_link, regex_markdown_link_with_subsection
+from .._consts import regex_markdown_link, regex_markdown_link_with_subsection, Passes
 
 from typing import Tuple, TYPE_CHECKING
 
@@ -37,7 +37,7 @@ def _process_section_reference(section: str, linked_document: Document):
     if section:
         # find the actual linked section and recreate teh section reference.
         regex_section_part = unquote(section).replace("-", "[ -]")
-        section_regex = re.compile(r"#+\s*(" + regex_section_part + ")")
+        section_regex = re.compile(r"#+\s*(" + regex_section_part + ")", re.IGNORECASE)
         for line in linked_document.contents.split("\n"):
             result = re.search(section_regex, line)
             if result:
@@ -46,7 +46,7 @@ def _process_section_reference(section: str, linked_document: Document):
     return section
 
 
-@document_rule("*.md")
+@document_rule("*.md", Passes.LINK_UPDATING)
 def santize_internal_links(context: ProcessingContext, document: Document):
     """
     Find any "internal" markdown links and make sure they use the form ()[<relative_path to item>]
