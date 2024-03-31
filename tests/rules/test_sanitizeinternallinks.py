@@ -3,11 +3,12 @@ import unittest
 
 from pathlib import Path
 from mddocproc import ProcessingSettings, ProcessingContext, Document, rules
+from typing import Tuple
 
 
 class TestSanitizeInternalLinks(unittest.TestCase):
     @staticmethod
-    def _create_test_data(link):
+    def _create_test_data(link: str) -> Tuple[ProcessingContext, Document]:
         doc_root = Path(os.path.join(os.path.dirname(__file__), "data", "docs"))
         context = ProcessingContext(ProcessingSettings(doc_root))
         context.add_document(Document(doc_root / Path("sub dir/relative - file.md"), "### sub - section"))
@@ -78,3 +79,20 @@ class TestSanitizeInternalLinks(unittest.TestCase):
                 context, doc = self._create_test_data(case)
                 rules.santize_internal_links(context, doc)
                 self.assertEqual(expected, doc.contents)
+
+    def test_linked_document_not_found(self):
+        case = (
+            "Replicate a bug found by providing a link to a non existant file"
+            "[link](<sub dir/file does not exist.md#sub - section>)"
+            "followed by another one"
+            "[link](<sub dir/file does not exist.md#sub - section>"
+            "which created an infinite loop"
+        )
+        expected = case
+        context, doc = self._create_test_data(case)
+        rules.santize_internal_links(context, doc)
+        self.assertEqual(expected, doc.contents)
+
+
+if __name__ == '__main__':
+    unittest.main()

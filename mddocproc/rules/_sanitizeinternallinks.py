@@ -53,13 +53,14 @@ def santize_internal_links(context: ProcessingContext, document: Document):
     :param context: The ProcessingContext.
     :param document: The document being processed.
     """
-    from ._utils import format_markdown_link
-
     pointer = 0
     while pointer < len(document.contents):
         success, start, pointer, text, path, section = _get_next_link_match(document, pointer)
+        if not success:
+            break
         linked_document = _get_document_from_link(context, document, unquote(path))
         if linked_document is not None:
             section = _process_section_reference(section, linked_document)
             reformatted_link = format_document_markdown_link(text, document, linked_document, section)
             document.contents = replace_span(document, start, pointer, reformatted_link)
+

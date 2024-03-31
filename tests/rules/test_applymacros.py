@@ -132,3 +132,7 @@ class TestApplyMacros(unittest.TestCase):
         doc = Document(Path("test.md"), "Example without any macros in it.")
         rules.apply_macros(context, doc)
         self.assertEqual("Example without any macros in it.", doc.contents)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -61,3 +61,7 @@ class TestRenameUniquelyForConfluence(unittest.TestCase):
         rules.rename_uniquely_for_confluence(context, doc)
         expected = Path(__file__).parent / "data" / "processed" / "beta" / "sub dir" / "beta - sub dir - general.md"
         self.assertEqual(expected, doc.target_path)
+
+
+if __name__ == '__main__':
+    unittest.main()

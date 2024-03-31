@@ -13,7 +13,7 @@ class Document(object):
         self.contents: str = data
 
 
-def load_document(path: Path):  # pragma: no cover
+def load_document(path: Path):
     """
     Load a document from a given path.
     :param path: The path to the file to load.
@@ -26,11 +26,11 @@ def load_document(path: Path):  # pragma: no cover
         return Document(path, fd.read())
 
 
-def save_document(document: Document):  # pragma: no cover
+def save_document(document: Document):
     """
     Save the contents of a Document to the set target_path.
     :param document: The document to save.
     """
-    document.target_path.mkdir(parents=True, exist_ok=True)
-    with open(document.target_path, "w") as fd:
+    document.target_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(document.target_path, "w+") as fd:
         fd.write(document.contents)

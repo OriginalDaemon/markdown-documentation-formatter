@@ -77,3 +77,7 @@ class TestGlossaryLinks(unittest.TestCase):
             "[Example](<../glossary data/glossary.md#Example>).",
             doc.contents,
         )
+
+
+if __name__ == '__main__':
+    unittest.main()

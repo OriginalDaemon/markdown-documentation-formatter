@@ -38,3 +38,7 @@ class TestMoveToTargetDirRelative(unittest.TestCase):
         rules.move_to_target_dir_relative(context, doc)
 
         self.assertEqual(Path(__file__).parent / "data" / "processed" / "beta" / "sub dir" / "test.md", doc.target_path)
+
+
+if __name__ == '__main__':
+    unittest.main()

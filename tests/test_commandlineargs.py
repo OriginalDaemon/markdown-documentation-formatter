@@ -230,3 +230,7 @@ class TestCommandLineArgs(unittest.TestCase):
                             "consts_file_path.py",
                         ]
                     )
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -52,3 +52,7 @@ class TestTableOfContents(unittest.TestCase):
         doc = Document(Path("test.md"), input_md)
         rules.create_table_of_contents(context, doc)
         self.assertEqual(expected, doc.contents)
+
+
+if __name__ == '__main__':
+    unittest.main()

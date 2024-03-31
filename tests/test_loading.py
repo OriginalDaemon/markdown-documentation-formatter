@@ -56,3 +56,7 @@ class TestLoading(unittest.TestCase):
             ("demo", "Example"),
         ]
         self.assertListEqual(expected, glossary_data)
+
+
+if __name__ == '__main__':
+    unittest.main()

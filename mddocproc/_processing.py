@@ -87,9 +87,9 @@ class ProcessingContext(object):
         return None
 
     def run(self):
-        for i in range(len(Passes)):
+        for index in Passes:
             for document in self.documents.values():
-                for rules in filter(lambda x: x.pass_index == i, self.settings.rules):
+                for rules in filter(lambda x: x.pass_index == index, self.settings.rules):
                     rules(self, document)
         for document in self.documents.values():
             save_document(document)
@@ -117,6 +117,6 @@ def process_docs(
     """
     settings = ProcessingSettings(input_dir, output_dir, version_name, rule_set, const_macros, function_macros)
     context = ProcessingContext(settings)
-    for file_path in input_dir.glob("*.*"):
+    for file_path in input_dir.glob("**/*.*"):
         context.add_document(file_path)
     context.run()

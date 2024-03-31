@@ -104,11 +104,11 @@ def parse_args(
     return args.input, args.output, rule_set, const_macros, function_macros, args.version, args.verbose
 
 
-def main():  # pragma: no cover
+def main(argv: list | None = None):
     """
     Takes a folder of documentation and prepares it for deployment in various ways.
     """
-    input_dir, output_dir, rule_set, const_macros, function_macros, version_name, verbose = parse_args(sys.argv[1:])
+    input_dir, output_dir, rule_set, const_macros, function_macros, version_name, verbose = parse_args(argv)
     logging.basicConfig(
         format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.DEBUG if verbose else logging.INFO
     )
@@ -116,4 +116,4 @@ def main():  # pragma: no cover
 
 
 if __name__ == "__main__":  # pragma: no cover
-    sys.exit(0 if main() else 1)
+    sys.exit(0 if main(sys.argv[1:]) else 1)
