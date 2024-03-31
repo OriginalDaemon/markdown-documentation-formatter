@@ -5,7 +5,7 @@ from ._document import Document, load_document, save_document
 from typing import Dict, List, TYPE_CHECKING
 from pathlib import Path
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .rules import DocumentRule
 
 

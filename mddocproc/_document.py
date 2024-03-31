@@ -13,29 +13,21 @@ class Document(object):
         self.original_contents: str = data
         self.contents: str = data
 
-    def set_content(self, content: str):
-        """
-        Set the contents for the file as a string. This is largely used to skip using load.
-        :param content: The contents of the file as a string.
-        """
-        self.original_contents = content
-        self.contents = content
 
-
-def load_document(path):
+def load_document(path: Path):  # pragma: no cover
     """
-    Load a document from a given relative_path.
-    :param path: The relative_path to the file to load.
+    Load a document from a given path.
+    :param path: The path to the file to load.
     """
-    if not os.path.exists(path):
+    if not path.exists():
         raise FileNotFoundError(f"{path} not found.")
-    if os.path.isdir(path):
+    if path.is_dir():
         raise IsADirectoryError(f"{path} is a directory, expected a file relative_path.")
     with open(path, "r") as fd:
         return Document(path, fd.read())
 
 
-def save_document(document: Document):
+def save_document(document: Document):  # pragma: no cover
     """
     Save the contents of a Document to the set target_path.
     :param document: The document to save.

@@ -7,7 +7,7 @@ from .._consts import Passes
 
 from typing import Callable, TYPE_CHECKING
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .._processing import ProcessingContext
     from .._document import Document
 

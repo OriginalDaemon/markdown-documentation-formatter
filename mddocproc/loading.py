@@ -1,9 +1,11 @@
+import re
+
 from pathlib import Path
 from typing import Dict, List, Tuple
 from types import ModuleType
 from .rules import DocumentRule
 from ._document import load_document
-from ._consts import FunctionMacro
+from ._consts import FunctionMacro, regex_glossary_synonyms
 
 
 def _import_module(module_name: str, module_contents) -> ModuleType:
@@ -86,8 +88,23 @@ def process_glossary(glossary: str) -> List[Tuple[str, str]]:
     longest to shortest term.
     """
     glossary_data: List[Tuple[str, str]] = []
-    for definition in glossary.split("##"):
-        pass
+    lines = glossary.split("\n")
+    for i in range(len(lines)):
+        line = lines[i].strip()
+        if line.startswith("##"):
+            term = line[len(line) - len(line.lstrip("#")):].strip()
+            link = f"#{term}"
+            glossary_data.append((term.lower(), link))
+            for i in range(i + 1, len(lines)):
+                line = lines[i].strip()
+                match = re.search(regex_glossary_synonyms, line.lower())
+                if line.startswith("##"):
+                    i -= 1
+                    break
+                elif match:
+                    for synonym in list(map(lambda x: x.strip(), match.group(1).split(","))):
+                        glossary_data.append((synonym.lower(), link))
+                    break
     return glossary_data
 
 

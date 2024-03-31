@@ -9,7 +9,7 @@ from .._consts import regex_const_macro, regex_function_macro
 
 from typing import Tuple, TYPE_CHECKING
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .._processing import ProcessingContext
     from .._document import Document
 

@@ -6,7 +6,7 @@ from ._base import document_rule
 
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .._processing import ProcessingContext
     from .._document import Document
 
@@ -26,13 +26,13 @@ def rename_uniquely_for_confluence(context: ProcessingContext, document: Documen
     :param context: The ProcessingContext.
     :param document: The document being processed.
     """
-    rel_path = os.path.relpath(context.settings.root_directory, document.input_path)
-    rel_path = rel_path.replace(".md", "")  # remove file extension, we know it's .md
-    parts = [context.settings.version_name] + rel_path.split(os.path.sep)
-    parent_dir = os.path.dirname(os.path.dirname(rel_path))
-    basename = os.path.basename(document.input_path)
-    if basename.lower() == "readme.md" or basename == f"{parent_dir}.md":
-        parts = parts[:-1] + [" - ".join(parts[:-1]) + ".md"]
+    parts = list(document.input_path.parent.relative_to(context.settings.root_directory).parts)
+    if context.settings.version_name:
+        parts.insert(0, context.settings.version_name)
+    parent_dir = document.input_path.parents[0].parts[-1]
+    if document.input_path.name.lower() == "readme.md" or document.input_path.name == f"{parent_dir}.md":
+        filename = " - ".join(parts) + ".md"
     else:
-        parts = parts[:-1] + [" - ".join(parts) + ".md"]
-    document.target_path = context.settings.target_directory.joinpath(*parts)
+        filename = " - ".join(parts + [document.input_path.name])
+
+    document.target_path = context.settings.target_directory.joinpath(*parts) / filename

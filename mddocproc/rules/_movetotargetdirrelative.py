@@ -6,7 +6,7 @@ from ._base import document_rule
 
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from .._processing import ProcessingContext
     from .._document import Document
 
@@ -19,5 +19,8 @@ def move_to_target_dir_relative(context: ProcessingContext, document: Document):
     :param document: The document being processed.
     """
     if context.settings.target_directory and context.settings.root_directory != context.settings.target_directory:
-        rel_path = os.path.relpath(context.settings.root_directory, document.input_path)
-        document.target_path = context.settings.target_directory / rel_path
+        rel_path = os.path.relpath(document.input_path, context.settings.root_directory)
+        if context.settings.version_name:
+            document.target_path = context.settings.target_directory / context.settings.version_name / rel_path
+        else:
+            document.target_path = context.settings.target_directory / rel_path
