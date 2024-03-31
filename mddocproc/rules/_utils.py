@@ -41,7 +41,7 @@ def form_relative_link(source_document: Document, linked_document: Document) -> 
     common = Path(os.path.commonpath([linked_document.target_path, source_document.target_path]))
     return os.path.join(
         os.path.relpath(common, source_document.target_path.parent),
-        os.path.relpath(linked_document.target_path, common)
+        os.path.relpath(linked_document.target_path, common),
     ).replace("\\", "/")
 
 
