@@ -2,7 +2,7 @@ import os
 import unittest
 
 from pathlib import Path
-from mddocproc import ProcessingSettings, ProcessingContext, Document, rules
+from mddocformatter import ProcessingSettings, ProcessingContext, Document, rules
 from typing import Tuple
 
 

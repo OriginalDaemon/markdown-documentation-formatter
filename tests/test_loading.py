@@ -1,5 +1,5 @@
 import unittest
-from mddocproc import loading
+from mddocformatter import loading
 
 MACROS_TEXT = """author = "hello"
 title = "world"
@@ -10,7 +10,7 @@ def capitalize(value):
 """
 
 
-RULES_TEXT = """from mddocproc import ProcessingContext, Document, document_rule
+RULES_TEXT = """from mddocformatter import ProcessingContext, Document, document_rule
 
 
 @document_rule("*.md")

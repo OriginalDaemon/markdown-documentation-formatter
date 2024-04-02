@@ -1,4 +1,4 @@
-from mddocproc import ProcessingContext, Document, document_rule
+from mddocformatter import ProcessingContext, Document, document_rule
 
 
 @document_rule("*.md")

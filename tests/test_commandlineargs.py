@@ -2,9 +2,9 @@ import os
 import unittest
 
 from pathlib import Path
-from mddocproc.scripts import cli
-from mddocproc import rules
-from mddocproc import DeploymentStyle
+from mddocformatter.scripts import cli
+from mddocformatter import rules
+from mddocformatter import DeploymentStyle
 from unittest.mock import patch
 
 

@@ -1,7 +1,7 @@
 import unittest
 
 from pathlib import Path
-from mddocproc import ProcessingSettings, ProcessingContext, Document, rules
+from mddocformatter import ProcessingSettings, ProcessingContext, Document, rules
 
 
 class TestApplyMacros(unittest.TestCase):
@@ -56,7 +56,7 @@ class TestApplyMacros(unittest.TestCase):
         settings = ProcessingSettings()
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello}")
-        with self.assertLogs("mddocproc", level="WARNING"):
+        with self.assertLogs("mddocformatter", level="WARNING"):
             rules.apply_macros(context, doc)
         self.assertEqual("Example macro ${hello}", doc.contents)
 
@@ -64,7 +64,7 @@ class TestApplyMacros(unittest.TestCase):
         settings = ProcessingSettings()
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello()}")
-        with self.assertLogs("mddocproc", level="WARNING"):
+        with self.assertLogs("mddocformatter", level="WARNING"):
             rules.apply_macros(context, doc)
         self.assertEqual("Example macro ${hello()}", doc.contents)
 
@@ -83,7 +83,7 @@ class TestApplyMacros(unittest.TestCase):
         )
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello(a)}")
-        with self.assertLogs("mddocproc", level="ERROR"):
+        with self.assertLogs("mddocformatter", level="ERROR"):
             rules.apply_macros(context, doc)
         self.assertEqual("Example macro ${hello(a)}", doc.contents)
 
@@ -95,7 +95,7 @@ class TestApplyMacros(unittest.TestCase):
         )
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello}")
-        with self.assertLogs("mddocproc", level="ERROR"):
+        with self.assertLogs("mddocformatter", level="ERROR"):
             rules.apply_macros(context, doc)
         self.assertEqual("Example macro ${hello}", doc.contents)
 
@@ -107,7 +107,7 @@ class TestApplyMacros(unittest.TestCase):
         )
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello(a)}")
-        with self.assertLogs("mddocproc", level="ERROR"):
+        with self.assertLogs("mddocformatter", level="ERROR"):
             rules.apply_macros(context, doc)
         self.assertEqual("Example macro ${hello(a)}", doc.contents)
 
@@ -122,7 +122,7 @@ class TestApplyMacros(unittest.TestCase):
         )
         context = ProcessingContext(settings)
         doc = Document(Path("test.md"), "Example macro ${hello()}")
-        with self.assertLogs("mddocproc", level="ERROR"):
+        with self.assertLogs("mddocformatter", level="ERROR"):
             rules.apply_macros(context, doc)
         self.assertEqual("Example macro ${hello()}", doc.contents)
 

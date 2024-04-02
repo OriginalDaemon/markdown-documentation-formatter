@@ -3,7 +3,7 @@ import os
 import unittest
 import tempfile
 
-from mddocproc.scripts import cli
+from mddocformatter.scripts import cli
 from pathlib import Path
 
 
@@ -13,7 +13,7 @@ from pathlib import Path
 )
 class TestLoading(unittest.TestCase):
     def test_process_test_docs_confluence_style(self):
-        with tempfile.TemporaryDirectory(prefix="mddocproc") as tempdir:
+        with tempfile.TemporaryDirectory(prefix="mddocformatter") as tempdir:
             cli.main(
                 [
                     "--input",
@@ -30,7 +30,7 @@ class TestLoading(unittest.TestCase):
             self.assertEqual(4, len(files))
 
     def test_process_test_docs_github_style(self):
-        with tempfile.TemporaryDirectory(prefix="mddocproc") as tempdir:
+        with tempfile.TemporaryDirectory(prefix="mddocformatter") as tempdir:
             cli.main(
                 [
                     "--input",

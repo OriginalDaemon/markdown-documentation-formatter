@@ -5,7 +5,7 @@ import logging
 
 from typing import Tuple, List, Dict
 
-from mddocproc import (
+from mddocformatter import (
     DeploymentStyle,
     process_docs,
     loading,

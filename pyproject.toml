@@ -1,9 +1,9 @@
 [project]
-name = "mddocproc"
+name = "mddocformatter"
 authors = [
-    {name = "Jonathan Pierce", email = "mddocproc@originaldaemon.com"},
+    {name = "Jonathan Pierce", email = "mddocformatter@originaldaemon.com"},
 ]
-description = "Utility to process documentation written in markdown in various ways."
+description = "Utility to format documentation written in markdown for various use cases."
 version = "0.1.0"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -23,7 +23,7 @@ dependencies = {file = ["requirements.txt"]}
 optional-dependencies = {test = { file = ["requirements-test.txt"] }}
 
 [project.scripts]
-mddocproc = "scripts:cli.py"
+mddocformatter = "scripts:cli.py"
 
 [tool.black]
 line-length = 120
