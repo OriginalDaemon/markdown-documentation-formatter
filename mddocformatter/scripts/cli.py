@@ -67,7 +67,7 @@ def parse_args(
         "-s",
         default=DeploymentStyle.CONFLUENCE,
         help="Determines the default ruleset to use. Use confluence|github to use rule-sets applicable for deployment "
-        "to the respective platforms. Use custom to only use rules provided via the --rules argument",
+        "to the respective platforms. Use custom to only use rules provided via the --rules argument.",
         type=_deploymentStyle,
     )
     parser.add_argument(

@@ -20,3 +20,37 @@ This system features a python library, which can be used on its own, a cli for c
 
  - Add a validate mode.
    - Do the normal full process and report if any files would be modified. In cases where modifications are required, then the docs are "invalid".
+
+
+## Run with python (CLI)
+
+You can run using "python -m mddocformatter ..." or using the mddocformatter.exe installed in your python's Scripts forlder.
+
+### Args
+
+| Argument  | Alias | Require | Description                                                                                                                                                                                            |
+|-----------|-------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --input   | -i    | True    | Path to the directory containing the docs to prep.                                                                                                                                                     |
+| --output  | -o    | True    | Directory to output the prepared documentation to. Can be same as input if you want to overwrite.                                                                                                      |
+| --style   | -s    | False   | Determines the default ruleset to use. Use confluence / github to use rule-sets applicable for deployment to the respective platforms. Use custom to only use rules provided via the --rules argument. |
+| --macros  | -m    | False   | The location of the macros file.                                                                                                                                                                       |
+| --rules   | -r    | False   | The location of the rules module with your custom rules in it.                                                                                                                                         |
+| --version |       | False   | The name to use for the version of the documentation.                                                                                                                                                  |
+| --verbose | -v    | False   | Use verbose logging.                                                                                                                                                                                   |
+
+## Run in Github Action
+
+You can run this as a github action using the following:
+
+```
+Example...
+```
+
+You must set the "input", "output" and "style" input options. You can also supply the "args" for extended options using the following options:
+
+| Argument  | Alias | Require | Description                                                                                                                                                                                            |
+|-----------|-------|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --macros  | -m    | False   | The location of the macros file.                                                                                                                                                                       |
+| --rules   | -r    | False   | The location of the rules module with your custom rules in it.                                                                                                                                         |
+| --version |       | False   | The name to use for the version of the documentation.                                                                                                                                                  |
+| --verbose | -v    | False   | Use verbose logging.                                                                                                                                                                                   |
