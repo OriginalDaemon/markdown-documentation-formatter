@@ -36,7 +36,7 @@ class TestRenameUniquelyForConfluence(unittest.TestCase):
         context = ProcessingContext(settings)
         doc = Document(Path(__file__).parent / "data" / "docs" / "sub dir" / "readme.md", "")
         rules.rename_uniquely_for_confluence(context, doc)
-        expected = Path(__file__).parent / "data" / "processed" / "beta" / "sub dir" / "beta - sub dir.md"
+        expected = Path(__file__).parent / "data" / "processed" / "beta" / "beta - sub dir" / "beta - sub dir.md"
         self.assertEqual(expected, doc.target_path)
 
     def test_rename_non_special_file(self):
@@ -59,7 +59,7 @@ class TestRenameUniquelyForConfluence(unittest.TestCase):
         context = ProcessingContext(settings)
         doc = Document(Path(__file__).parent / "data" / "docs" / "sub dir" / "general.md", "")
         rules.rename_uniquely_for_confluence(context, doc)
-        expected = Path(__file__).parent / "data" / "processed" / "beta" / "sub dir" / "beta - sub dir - general.md"
+        expected = Path(__file__).parent / "data" / "processed" / "beta" / "beta - sub dir" / "beta - sub dir - general.md"
         self.assertEqual(expected, doc.target_path)
 
 
