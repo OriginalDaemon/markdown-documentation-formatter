@@ -1,4 +1,4 @@
-on: [push]
+on: [ workflow_dispatch, push, pull_request ]
 jobs:
   test_confluence_formatting:
     runs-on: ubuntu-latest
