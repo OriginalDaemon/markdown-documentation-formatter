@@ -78,13 +78,14 @@ class TestRenameUniquelyForConfluence(unittest.TestCase):
     def test_path_is_confluence_style_true_with_version_name(self):
         root_directory = Path(__file__).parent / "data" / "docs"
         version_name = "testing"
+        sub_dir = root_directory / version_name / f"{version_name} - sub dir"
         cases = [
             root_directory / version_name / f"{version_name}.md",
             root_directory / version_name / f"{version_name} - other.md",
-            root_directory / version_name / f"{version_name} - sub dir" / f"{version_name} - sub dir.md",
-            root_directory / version_name / f"{version_name} - sub dir" / f"{version_name} - sub dir - other.md",
-            root_directory / version_name / f"{version_name} - sub dir" / f"{version_name} - sub dir - sub dir 2" / f"{version_name} - sub dir - sub dir 2.md",
-            root_directory / version_name / f"{version_name} - sub dir" / f"{version_name} - sub dir - sub dir 2" / f"{version_name} - sub dir - sub dir 2 - other.md",
+            sub_dir / f"{version_name} - sub dir.md",
+            sub_dir / f"{version_name} - sub dir - other.md",
+            sub_dir / f"{version_name} - sub dir - sub dir 2" / f"{version_name} - sub dir - sub dir 2.md",
+            sub_dir / f"{version_name} - sub dir - sub dir 2" / f"{version_name} - sub dir - sub dir 2 - other.md",
         ]
         for i, case in enumerate(cases):
             with self.subTest(i=i):
