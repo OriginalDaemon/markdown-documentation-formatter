@@ -27,7 +27,7 @@ jobs:
       - name: Validate result
         uses: originaldaemon/markdown-documentation-formatter@beta
         with:
-          input: ${{ steps.process-confluence.outputs.processed }}
+          input: './tests/data/processed_confluence'
           validate: true
           style: 'confluence'
           args: '--version test'
@@ -52,7 +52,7 @@ jobs:
       - name: Validate result
         uses: originaldaemon/markdown-documentation-formatter@beta
         with:
-          input: ${{ steps.process-github.outputs.processed }}
+          input: './tests/data/processed_github'
           style: 'github'
           validate: true
           args: '--version test'
