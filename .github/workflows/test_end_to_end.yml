@@ -11,19 +11,23 @@ jobs:
     name: Package the test documentation using the confluence style and upload it as an artifact.
     steps:
       - uses: actions/checkout@v4
-      - uses: originaldaemon/markdown-documentation-formatter@beta
+      - name: Process test/docs in confluence style
+        id: process-confluence
+        uses: originaldaemon/markdown-documentation-formatter@beta
         with:
           input: './tests/data/docs'
           output: './tests/data/processed_confluence'
           style: 'confluence'
           args: '--version test'
-      - uses: actions/upload-artifact@v4
+      - name: Upload processed as artifact
+        uses: actions/upload-artifact@v4
         with:
           name: 'processed_confluence'
-          path: './tests/data/processed_confluence'
-      - uses: originaldaemon/markdown-documentation-formatter@beta
+          path: ${{ process-confluence.output }}
+      - name: Validate result
+        uses: originaldaemon/markdown-documentation-formatter@beta
         with:
-          input: './tests/data/docs'
+          input: ${{ process-confluence.output }}
           validate: true
           style: 'confluence'
           args: '--version test'
@@ -32,19 +36,23 @@ jobs:
     name: Package the test documentation using the github style and upload it as an artifact.
     steps:
       - uses: actions/checkout@v4
-      - uses: originaldaemon/markdown-documentation-formatter@beta
+      - name: Process test/docs in confluence style
+        id: process-github
+        uses: originaldaemon/markdown-documentation-formatter@beta
         with:
           input: './tests/data/docs'
           output: './tests/data/processed_github'
           style: 'github'
           args: '--version test'
-      - uses: actions/upload-artifact@v4
+      - name: Upload processed as artifact
+        uses: actions/upload-artifact@v4
         with:
           name: 'processed_github'
-          path: './tests/data/processed_github'
-      - uses: originaldaemon/markdown-documentation-formatter@beta
+          path: ${{ process-github.output }}
+      - name: Validate result
+        uses: originaldaemon/markdown-documentation-formatter@beta
         with:
-          input: './tests/data/docs'
+          input: ${{ process-github.output }}
           style: 'github'
           validate: true
           args: '--version test'
