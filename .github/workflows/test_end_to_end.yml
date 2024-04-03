@@ -1,0 +1,30 @@
+on: [push]
+jobs:
+  test_confluence_formatting:
+    runs-on: ubuntu-latest
+    name: Package the test documentation using the confluence style and upload it as an artifact.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: originaldemon/markdown-documentation-formatter/@v1
+        with:
+          input: "./docs"
+          output: "./processed_confluence"
+          style: "confluence"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "processed_confluence"
+          path: "./processed_confluence"
+  test_github_formatting:
+    runs-on: ubuntu-latest
+    name: Package the test documentation using the github style and upload it as an artifact.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: originaldemon/markdown-documentation-formatter/@v1
+        with:
+          input: "./docs"
+          output: "./processed_github"
+          style: "github"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "processed_github"
+          path: "./processed_github"
