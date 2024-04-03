@@ -83,19 +83,19 @@ class ProcessingContext(object):
         """
         # try exact match
         for doc in self.documents.values():
-            if name == doc.input_path.name:
+            if name == doc.input_path.name.split(" - ")[-1]:
                 return doc
         # try case insensitive
         for doc in self.documents.values():
-            if name == doc.input_path.name.lower():
+            if name == doc.input_path.name.lower().split(" - ")[-1]:
                 return doc
         # try match without extension
         for doc in self.documents.values():
-            if name == doc.input_path.stem:
+            if name == doc.input_path.stem.split(" - ")[-1]:
                 return doc
         # try match without extension, with case insensitivity
         for doc in self.documents.values():
-            if name == doc.input_path.stem.lower():
+            if name == doc.input_path.stem.lower().split(" - ")[-1]:
                 return doc
         return None
 

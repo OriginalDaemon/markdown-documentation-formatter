@@ -75,6 +75,64 @@ class TestRenameUniquelyForConfluence(unittest.TestCase):
         expected = Path(__file__).parent / "data" / "processed" / "readme.md"
         self.assertEqual(expected, doc.target_path)
 
+    def test_path_is_confluence_style_true_with_version_name(self):
+        root_directory = Path(__file__).parent / "data" / "docs"
+        version_name = "testing"
+        cases = [
+            root_directory / version_name / f"{version_name}.md",
+            root_directory / version_name / f"{version_name} - other.md",
+            root_directory / version_name / f"{version_name} - sub dir" / f"{version_name} - sub dir.md",
+            root_directory / version_name / f"{version_name} - sub dir" / f"{version_name} - sub dir - other.md",
+            root_directory / version_name / f"{version_name} - sub dir" / f"{version_name} - sub dir - sub dir 2" / f"{version_name} - sub dir - sub dir 2.md",
+            root_directory / version_name / f"{version_name} - sub dir" / f"{version_name} - sub dir - sub dir 2" / f"{version_name} - sub dir - sub dir 2 - other.md",
+        ]
+        for i, case in enumerate(cases):
+            with self.subTest(i=i):
+                self.assertTrue(rules.path_is_confluence_style(root_directory, case, version_name))
+
+    def test_path_is_confluence_style_true_without_version_name(self):
+        root_directory = Path(__file__).parent / "data" / "docs"
+        version_name = ""
+        cases = [
+            root_directory / f"readme.md",
+            root_directory / f"other.md",
+            root_directory / f"sub dir" / f"sub dir.md",
+            root_directory / f"sub dir" / f"sub dir - other.md",
+            root_directory / f"sub dir" / f"sub dir - sub dir 2" / f"sub dir - sub dir 2.md",
+            root_directory / f"sub dir" / f"sub dir - sub dir 2" / f"sub dir - sub dir 2 - other.md",
+        ]
+        for i, case in enumerate(cases):
+            with self.subTest(i=i):
+                self.assertTrue(rules.path_is_confluence_style(root_directory, case, version_name))
+
+    def test_path_is_confluence_style_false_with_version_name(self):
+        root_directory = Path(__file__).parent / "data" / "docs"
+        version_name = "testing"
+        cases = [
+            root_directory / f"readme.md",
+            root_directory / f"other.md",
+            root_directory / f"sub dir" / f"readme.md",
+            root_directory / f"sub dir" / f"other.md",
+            root_directory / f"sub dir" / f"sub dir 2" / f"readme.md",
+            root_directory / f"sub dir" / f"sub dir 2" / f"other.md",
+        ]
+        for i, case in enumerate(cases):
+            with self.subTest(i=i):
+                self.assertFalse(rules.path_is_confluence_style(root_directory, case, version_name))
+
+    def test_path_is_confluence_style_false_without_version_name(self):
+        root_directory = Path(__file__).parent / "data" / "docs"
+        version_name = ""
+        cases = [
+            root_directory / f"sub dir" / f"readme.md",
+            root_directory / f"sub dir" / f"other.md",
+            root_directory / f"sub dir" / f"sub dir 2" / f"readme.md",
+            root_directory / f"sub dir" / f"sub dir 2" / f"other.md",
+        ]
+        for i, case in enumerate(cases):
+            with self.subTest(i=i):
+                self.assertFalse(rules.path_is_confluence_style(root_directory, case, version_name))
+
 
 if __name__ == "__main__":
     unittest.main()

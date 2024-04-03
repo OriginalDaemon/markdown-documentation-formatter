@@ -11,7 +11,7 @@ from pathlib import Path
     os.environ.get("UNITTEST_END_TO_END", None) is not None,
     "Skipping all end-to-end tests. Define the UNITTEST_END_TO_END environment variable to include them.",
 )
-class TestLoading(unittest.TestCase):
+class TestEndToEnd(unittest.TestCase):
     def test_validate_test_docs_confluence_style_fail(self):
         result = cli.run(
             [
