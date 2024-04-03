@@ -111,4 +111,4 @@ def run(argv: list | None = None):
     logging.basicConfig(
         format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.DEBUG if verbose else logging.INFO
     )
-    return process_docs(input_dir, output_dir, rule_set, const_macros, function_macros, version_name)
+    process_docs(input_dir, output_dir, rule_set, const_macros, function_macros, version_name)

@@ -3,7 +3,13 @@ from .cli import run
 
 
 def main():
-    return 0 if run(sys.argv[1:]) else 1
+    # noinspection PyBroadException
+    try:
+        run(sys.argv[1:])
+    except Exception:
+        raise
+    else:
+        return 0
 
 
 if __name__ == "__main__":
