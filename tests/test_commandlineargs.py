@@ -2,7 +2,7 @@ import os
 import unittest
 
 from pathlib import Path
-from mddocformatter.scripts import cli
+from mddocformatter import cli
 from mddocformatter import rules
 from mddocformatter import DeploymentStyle
 from unittest.mock import patch

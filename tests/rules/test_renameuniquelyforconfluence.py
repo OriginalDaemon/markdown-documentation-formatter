@@ -64,6 +64,17 @@ class TestRenameUniquelyForConfluence(unittest.TestCase):
         )
         self.assertEqual(expected, doc.target_path)
 
+    def test_readme_in_root_no_version(self):
+        settings = ProcessingSettings(
+            root_directory=Path(__file__).parent / "data" / "docs",
+            target_directory=Path(__file__).parent / "data" / "processed",
+        )
+        context = ProcessingContext(settings)
+        doc = Document(Path(__file__).parent / "data" / "docs" / "readme.md", "")
+        rules.rename_uniquely_for_confluence(context, doc)
+        expected = Path(__file__).parent / "data" / "processed" / "readme.md"
+        self.assertEqual(expected, doc.target_path)
+
 
 if __name__ == "__main__":
     unittest.main()

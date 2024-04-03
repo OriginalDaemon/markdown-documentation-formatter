@@ -16,6 +16,7 @@ jobs:
           input: "./tests/data/docs"
           output: "./tests/data/processed_confluence"
           style: "confluence"
+          args: "--version test"
       - uses: actions/upload-artifact@v4
         with:
           name: "processed_confluence"
@@ -30,6 +31,7 @@ jobs:
           input: "./tests/data/docs"
           output: "./tests/data/processed_github"
           style: "github"
+          args: "--version test"
       - uses: actions/upload-artifact@v4
         with:
           name: "processed_github"

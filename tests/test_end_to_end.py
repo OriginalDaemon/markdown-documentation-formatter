@@ -3,7 +3,7 @@ import os
 import unittest
 import tempfile
 
-from mddocformatter.scripts import cli
+from mddocformatter import cli
 from pathlib import Path
 
 
@@ -29,6 +29,21 @@ class TestLoading(unittest.TestCase):
             files = list(Path(tempdir).glob("**/*.*"))
             self.assertEqual(4, len(files))
 
+    def test_process_test_docs_confluence_style_unversioned(self):
+        with tempfile.TemporaryDirectory(prefix="mddocformatter") as tempdir:
+            cli.run(
+                [
+                    "--input",
+                    str(Path(__file__).parent / "data" / "docs"),
+                    "--output",
+                    tempdir,
+                    "--style",
+                    "confluence",
+                ]
+            )
+            files = list(Path(tempdir).glob("**/*.*"))
+            self.assertEqual(4, len(files))
+
     def test_process_test_docs_github_style(self):
         with tempfile.TemporaryDirectory(prefix="mddocformatter") as tempdir:
             cli.run(
@@ -41,6 +56,21 @@ class TestLoading(unittest.TestCase):
                     "github",
                     "--version",
                     "test",
+                ]
+            )
+            files = list(Path(tempdir).glob("**/*.*"))
+            self.assertEqual(4, len(files))
+
+    def test_process_test_docs_github_style_unversioned(self):
+        with tempfile.TemporaryDirectory(prefix="mddocformatter") as tempdir:
+            cli.run(
+                [
+                    "--input",
+                    str(Path(__file__).parent / "data" / "docs"),
+                    "--output",
+                    tempdir,
+                    "--style",
+                    "github",
                 ]
             )
             files = list(Path(tempdir).glob("**/*.*"))

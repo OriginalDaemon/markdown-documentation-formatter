@@ -18,9 +18,9 @@ def rename_uniquely_for_confluence(context: ProcessingContext, document: Documen
 
     This will also place the version_name as the root directory.
     So, given a page:
-      - "something/else/aswell.md
+      - "something/else/as well.md
     this rule will rename it to
-      - "develop/something/else/something - else - aswell.md
+      - "develop/something/else/something - else - as well.md
     :param context: The ProcessingContext.
     :param document: The document being processed.
     """
@@ -29,7 +29,9 @@ def rename_uniquely_for_confluence(context: ProcessingContext, document: Documen
         parts.insert(0, context.settings.version_name)
     parts = [" - ".join(parts[: i + 1]) for i in range(len(parts))]
     parent_dir = document.input_path.parents[0].parts[-1]
-    if document.input_path.name.lower() == "readme.md" or document.input_path.name == f"{parent_dir}.md":
+    if not parts:
+        filename = document.input_path.name
+    elif document.input_path.name.lower() == "readme.md" or document.input_path.name == f"{parent_dir}.md":
         filename = parts[-1] + ".md"
     else:
         filename = f"{parts[-1]} - {document.input_path.name}"
