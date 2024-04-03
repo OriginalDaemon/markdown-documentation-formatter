@@ -1,4 +1,3 @@
-import sys
 import pathlib
 import argparse
 import logging
@@ -104,7 +103,7 @@ def parse_args(
     return args.input, args.output, rule_set, const_macros, function_macros, args.version, args.verbose
 
 
-def main(argv: list | None = None):
+def run(argv: list | None = None):
     """
     Takes a folder of documentation and prepares it for deployment in various ways.
     """
@@ -113,7 +112,3 @@ def main(argv: list | None = None):
         format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.DEBUG if verbose else logging.INFO
     )
     return process_docs(input_dir, output_dir, rule_set, const_macros, function_macros, version_name)
-
-
-if __name__ == "__main__":  # pragma: no cover
-    sys.exit(0 if main(sys.argv[1:]) else 1)

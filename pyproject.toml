@@ -23,7 +23,7 @@ dependencies = {file = ["requirements.txt"]}
 optional-dependencies = {test = { file = ["requirements-test.txt"] }}
 
 [project.scripts]
-mddocformatter = "scripts:cli.py"
+mddocformatter = "mddocformatter.__main__:main"
 
 [tool.black]
 line-length = 120
@@ -34,3 +34,10 @@ per-file-ignores = [
     '__init__.py:F401',
 ]
 max-line-length = 120
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+    ".venv/*",
+    "**/__main__.py",
+]

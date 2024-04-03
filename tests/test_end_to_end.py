@@ -14,7 +14,7 @@ from pathlib import Path
 class TestLoading(unittest.TestCase):
     def test_process_test_docs_confluence_style(self):
         with tempfile.TemporaryDirectory(prefix="mddocformatter") as tempdir:
-            cli.main(
+            cli.run(
                 [
                     "--input",
                     str(Path(__file__).parent / "data" / "docs"),
@@ -31,7 +31,7 @@ class TestLoading(unittest.TestCase):
 
     def test_process_test_docs_github_style(self):
         with tempfile.TemporaryDirectory(prefix="mddocformatter") as tempdir:
-            cli.main(
+            cli.run(
                 [
                     "--input",
                     str(Path(__file__).parent / "data" / "docs"),

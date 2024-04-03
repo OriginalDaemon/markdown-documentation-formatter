@@ -1,7 +1,10 @@
-import sys  # pragma: no cover
+import sys
+from .cli import run
 
 
-if __name__ == "__main__":  # pragma: no cover
-    from .scripts.cli import main
+def main():
+    sys.exit(0 if run(sys.argv[1:]) else 1)
 
-    sys.exit(0 if main(sys.argv[1:]) else 1)
+
+if __name__ == "__main__":
+    main()
