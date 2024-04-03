@@ -31,3 +31,6 @@ runs:
     - name: install mddocformatter
       shell: bash
       run: pip install .
+    - name: run mddocformatter
+      shell: bash
+      run: mddocformatter --input ${{ inputs.input }} --output ${{ inputs.output }} --style ${{ inputs.style }} ${{ args }}
