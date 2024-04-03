@@ -83,8 +83,16 @@ class TestRenameUniquelyForConfluence(unittest.TestCase):
             root_directory / version_name / f"{version_name} - other.md",
             root_directory / version_name / f"{version_name} - sub dir" / f"{version_name} - sub dir.md",
             root_directory / version_name / f"{version_name} - sub dir" / f"{version_name} - sub dir - other.md",
-            root_directory / version_name / f"{version_name} - sub dir" / f"{version_name} - sub dir - sub dir 2" / f"{version_name} - sub dir - sub dir 2.md",
-            root_directory / version_name / f"{version_name} - sub dir" / f"{version_name} - sub dir - sub dir 2" / f"{version_name} - sub dir - sub dir 2 - other.md",
+            root_directory
+            / version_name
+            / f"{version_name} - sub dir"
+            / f"{version_name} - sub dir - sub dir 2"
+            / f"{version_name} - sub dir - sub dir 2.md",
+            root_directory
+            / version_name
+            / f"{version_name} - sub dir"
+            / f"{version_name} - sub dir - sub dir 2"
+            / f"{version_name} - sub dir - sub dir 2 - other.md",
         ]
         for i, case in enumerate(cases):
             with self.subTest(i=i):
