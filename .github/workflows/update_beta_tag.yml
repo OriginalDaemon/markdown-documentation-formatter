@@ -1,4 +1,4 @@
-name: Update beta tag
+name: Update Beta Tag
 on:
   push:
     branches:

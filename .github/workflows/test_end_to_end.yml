@@ -1,7 +1,13 @@
-on: [ workflow_dispatch, push, pull_request ]
+name: Test End to End
+on:
+  workflow_run:
+    workflows: ["Update Beta Tag"]
+    types:
+      - completed
 jobs:
   test_confluence_formatting:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Package the test documentation using the confluence style and upload it as an artifact.
     steps:
       - uses: actions/checkout@v4
