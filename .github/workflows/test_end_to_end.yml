@@ -23,11 +23,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 'processed_confluence'
-          path: ${{ process-confluence.output }}
+          path: ${{ steps.process-confluence.output }}
       - name: Validate result
         uses: originaldaemon/markdown-documentation-formatter@beta
         with:
-          input: ${{ process-confluence.output }}
+          input: ${{ steps.process-confluence.output }}
           validate: true
           style: 'confluence'
           args: '--version test'
@@ -48,11 +48,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: 'processed_github'
-          path: ${{ process-github.output }}
+          path: ${{ steps.process-github.output }}
       - name: Validate result
         uses: originaldaemon/markdown-documentation-formatter@beta
         with:
-          input: ${{ process-github.output }}
+          input: ${{ steps.process-github.output }}
           style: 'github'
           validate: true
           args: '--version test'
