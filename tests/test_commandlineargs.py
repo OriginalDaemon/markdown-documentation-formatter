@@ -55,8 +55,8 @@ class TestCommandLineArgs(unittest.TestCase):
         with patch.object(Path, "exists", new=_exists):
             with patch.object(Path, "is_dir") as mock_is_dir:
                 mock_is_dir.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
-                    ["--input", "input_file_path", "--output", "output_file_path"]
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = (
+                    cli.parse_args(["--input", "input_file_path", "--output", "output_file_path"])
                 )
                 self.assertEqual(Path("output_file_path"), output_dir)
 
@@ -75,8 +75,8 @@ class TestCommandLineArgs(unittest.TestCase):
             with patch.object(Path, "is_dir") as mock_isdir:
                 mock_exists.return_value = True
                 mock_isdir.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
-                    ["--input", "input_file_path", "--output", "output_file_path"]
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = (
+                    cli.parse_args(["--input", "input_file_path", "--output", "output_file_path"])
                 )
                 self.assertIsInstance(input_dir, Path)
                 self.assertIsInstance(output_dir, Path)
@@ -86,8 +86,8 @@ class TestCommandLineArgs(unittest.TestCase):
             with patch.object(Path, "is_dir") as mock_isdir:
                 mock_exists.return_value = True
                 mock_isdir.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
-                    ["--input", "input_file_path", "--output", "output_file_path"]
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = (
+                    cli.parse_args(["--input", "input_file_path", "--output", "output_file_path"])
                 )
                 self.assertListEqual(rules.GetRulesForStyle(DeploymentStyle.CONFLUENCE), rule_set)
                 self.assertDictEqual({}, const_macros)
@@ -100,8 +100,8 @@ class TestCommandLineArgs(unittest.TestCase):
             with patch.object(Path, "is_dir") as mock_isdir:
                 mock_exists.return_value = True
                 mock_isdir.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
-                    ["--input", "input_file_path", "--output", "output_file_path", "--style", "github"]
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = (
+                    cli.parse_args(["--input", "input_file_path", "--output", "output_file_path", "--style", "github"])
                 )
                 self.assertListEqual(rules.GetRulesForStyle(DeploymentStyle.GITHUB), rule_set)
 
@@ -137,15 +137,17 @@ class TestCommandLineArgs(unittest.TestCase):
         with patch.object(Path, "exists") as mock_exists:
             with patch.object(Path, "is_dir", new=_is_dir):
                 mock_exists.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
-                    [
-                        "--input",
-                        "input_file_path",
-                        "--output",
-                        "output_file_path",
-                        "--macros",
-                        os.path.join(os.path.dirname(__file__), "data", "macros.py"),
-                    ]
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = (
+                    cli.parse_args(
+                        [
+                            "--input",
+                            "input_file_path",
+                            "--output",
+                            "output_file_path",
+                            "--macros",
+                            os.path.join(os.path.dirname(__file__), "data", "macros.py"),
+                        ]
+                    )
                 )
                 self.assertIn("author", const_macros)
                 self.assertEqual("hello", const_macros["author"])
@@ -161,15 +163,17 @@ class TestCommandLineArgs(unittest.TestCase):
         with patch.object(Path, "exists") as mock_exists:
             with patch.object(Path, "is_dir", new=_is_dir):
                 mock_exists.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
-                    [
-                        "--input",
-                        "input_file_path",
-                        "--output",
-                        "output_file_path",
-                        "--rules",
-                        os.path.join(os.path.dirname(__file__), "data", "rules.py"),
-                    ]
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = (
+                    cli.parse_args(
+                        [
+                            "--input",
+                            "input_file_path",
+                            "--output",
+                            "output_file_path",
+                            "--rules",
+                            os.path.join(os.path.dirname(__file__), "data", "rules.py"),
+                        ]
+                    )
                 )
                 self.assertTrue(any(x.__name__ == "my_rule" for x in rule_set))
                 self.assertEqual(len(rules.GetRulesForStyle(DeploymentStyle.CONFLUENCE)) + 1, len(rule_set))
@@ -181,17 +185,19 @@ class TestCommandLineArgs(unittest.TestCase):
         with patch.object(Path, "exists") as mock_exists:
             with patch.object(Path, "is_dir", new=_is_dir):
                 mock_exists.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
-                    [
-                        "--input",
-                        "input_file_path",
-                        "--output",
-                        "output_file_path",
-                        "--style",
-                        "custom",
-                        "--rules",
-                        os.path.join(os.path.dirname(__file__), "data", "rules.py"),
-                    ]
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = (
+                    cli.parse_args(
+                        [
+                            "--input",
+                            "input_file_path",
+                            "--output",
+                            "output_file_path",
+                            "--style",
+                            "custom",
+                            "--rules",
+                            os.path.join(os.path.dirname(__file__), "data", "rules.py"),
+                        ]
+                    )
                 )
                 self.assertEqual("my_rule", rule_set[0].__name__)
                 self.assertEqual(1, len(rule_set))
@@ -238,27 +244,15 @@ class TestCommandLineArgs(unittest.TestCase):
                 with self.assertRaises(SystemExit):
                     mock_exists.return_value = True
                     mock_isdir.return_value = True
-                    cli.parse_args(
-                        [
-                            "--input",
-                            "input_file_path",
-                            "--output",
-                            "output_file_path",
-                            "--validate"
-                        ]
-                    )
+                    cli.parse_args(["--input", "input_file_path", "--output", "output_file_path", "--validate"])
 
     def test_validate_option(self):
         with patch.object(Path, "exists") as mock_exists:
             with patch.object(Path, "is_dir") as mock_isdir:
                 mock_exists.return_value = True
                 mock_isdir.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
-                    [
-                        "--input",
-                        "input_file_path",
-                        "--validate"
-                    ]
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = (
+                    cli.parse_args(["--input", "input_file_path", "--validate"])
                 )
                 self.assertTrue(validate)
 

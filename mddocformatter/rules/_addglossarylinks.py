@@ -50,6 +50,7 @@ def add_glossary_links(context: ProcessingContext, document: Document):
     :param document: The document being processed.
     """
     from .. import loading
+
     glossary = context.get_document_by_name("glossary.md")
     if not glossary:
         logger.warning("Cannot find a glossary.md file, therefore skipping add_glossary_links.")
@@ -73,4 +74,3 @@ def add_glossary_links(context: ProcessingContext, document: Document):
                             break
                     else:
                         break
-

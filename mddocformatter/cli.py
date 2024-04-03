@@ -62,7 +62,7 @@ def parse_args(
         required=False,
         default=None,
         help="Directory to output the prepared documentation to. If not given, the output results will override the "
-             "input instead.",
+        "input instead.",
         type=lambda x: _process_path_arg(x, "output", False, True),
     )
     parser.add_argument(
@@ -93,8 +93,9 @@ def parse_args(
         required=False,
         default=False,
         help="Processes the documentation in a validation mode. This will report if the documentation already meats "
-             "the requirements for the given style or not.",
-        action="store_true")
+        "the requirements for the given style or not.",
+        action="store_true",
+    )
     parser.add_argument("--verbose", "-v", default=False, help="Use verbose logging", action="store_true")
     args = parser.parse_args(argv)
 
