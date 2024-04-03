@@ -15,9 +15,9 @@ inputs:
     default: 'confluence'
   args:
     description: 'The extended command line args, see the readme.'
-    default: ""
+    default: ''
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - uses: actions/checkout@v4.1.2
     - uses: actions/setup-python@v5.0.0
