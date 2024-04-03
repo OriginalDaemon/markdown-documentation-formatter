@@ -1,3 +1,5 @@
+import difflib
+
 from pathlib import Path
 
 
@@ -11,6 +13,26 @@ class Document(object):
         self.target_path: Path = Path(input_path)
         self.original_contents: str = data
         self.contents: str = data
+
+    @property
+    def unchanged(self):
+        """
+        :return: True if the document is currently unchanged compared to its original contents.
+        """
+        return self.original_contents == self.contents
+
+    @property
+    def changes(self):
+        if not self.unchanged:
+            a = self.original_contents.split("\n")
+            b = self.contents.split("\n")
+            result = ""
+            for text in difflib.unified_diff(a, b):
+                if text[:3] not in ('+++', '---', '@@ '):
+                    result += text + "\n"
+            return result
+        else:
+            return ""
 
 
 def load_document(path: Path):

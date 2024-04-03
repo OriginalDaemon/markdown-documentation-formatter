@@ -16,6 +16,10 @@ inputs:
   args:
     description: 'The extended command line args, see the readme.'
     default: ''
+  validate:
+    description: 'Set to true to validate your documentation. If true, output is not used.'
+    required: false
+    default: 'false'
 outputs:
   processed:
     description: The processed documentation.
@@ -36,6 +40,11 @@ runs:
     - name: install mddocformatter
       shell: bash
       run: pip install .
-    - name: run mddocformatter
+    - name: Process documentation with mddocformatter
       shell: bash
       run: mddocformatter --input ${{ inputs.input }} --output ${{ inputs.output }} --style ${{ inputs.style }} ${{ inputs.args }}
+      if: ${{ inputs.validate == 'true' }}
+    - name: Validate documentation with mddocformatter
+      shell: bash
+      run: mddocformatter --input ${{ inputs.input }} --validate --style ${{ inputs.style }} ${{ inputs.args }}
+      if: ${{ inputs.validate == 'true' }}

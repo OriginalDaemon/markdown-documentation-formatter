@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from ._consts import Passes, FunctionMacro
 from ._document import Document, load_document, save_document
 from typing import Dict, List, TYPE_CHECKING
@@ -7,6 +9,9 @@ from pathlib import Path
 
 if TYPE_CHECKING:  # pragma: no cover
     from .rules import DocumentRule
+
+
+logger = logging.getLogger(__name__)
 
 
 class ProcessingSettings(object):
@@ -95,12 +100,42 @@ class ProcessingContext(object):
         return None
 
     def run(self):
+        """
+        Run the documentation processing.
+        """
         for index in Passes:
             for document in self.documents.values():
                 for rules in filter(lambda x: x.pass_index == index, self.settings.rules):
                     rules(self, document)
+
+    def save(self):
+        """
+        Save the current state of the documentation to the target locations - usually called after "run".
+        """
         for document in self.documents.values():
             save_document(document)
+
+
+def _process_docs(
+    input_dir: Path,
+    output_dir: Path,
+    rule_set: list,
+    const_macros: Dict[str, str] | None = None,
+    function_macros: Dict[str, FunctionMacro] | None = None,
+    version_name: str = "",
+):
+    """Create a context, find and process the docs, and :return: the context."""
+    settings = ProcessingSettings(input_dir, output_dir, version_name, rule_set, const_macros, function_macros)
+    logging.info("Configuring...")
+    context = ProcessingContext(settings)
+    logging.info(f"Discovering documentation in {input_dir}...")
+    for file_path in input_dir.glob("**/*.*"):
+        context.add_document(file_path)
+    docs_list = "\n\t".join([str(x) for x in context.documents.keys()])
+    logging.info(f"Files found: \n    {docs_list}")
+    logging.info(f"Processing...")
+    context.run()
+    return context
 
 
 def process_docs(
@@ -110,7 +145,7 @@ def process_docs(
     const_macros: Dict[str, str] | None = None,
     function_macros: Dict[str, FunctionMacro] | None = None,
     version_name: str = "",
-):
+) -> bool:
     """
     Process all the documentation in the input_dir and save the results to the output_dir. Make the input & output dirs
     the same to overwrite the documentation in place.
@@ -122,9 +157,41 @@ def process_docs(
     :param rule_set: The rules to run on each doc.
     :param const_macros: A table of const value macros.
     :param function_macros: A table of function macros which take 0 or more strings as args and returns a string.
+    :return: True if successful.
     """
-    settings = ProcessingSettings(input_dir, output_dir, version_name, rule_set, const_macros, function_macros)
-    context = ProcessingContext(settings)
-    for file_path in input_dir.glob("**/*.*"):
-        context.add_document(file_path)
-    context.run()
+    context = _process_docs(input_dir, output_dir, rule_set, const_macros, function_macros, version_name)
+    logging.info(f"Saving...")
+    context.save()
+    logging.info(f"Complete.")
+    return True
+
+
+def validate_docs(
+    input_dir: Path,
+    rule_set: list,
+    const_macros: Dict[str, str] | None = None,
+    function_macros: Dict[str, FunctionMacro] | None = None,
+    version_name: str = "",
+) -> bool:
+    """
+    Process all the documentation in the input_dir and save the results to the output_dir. Make the input & output dirs
+    the same to overwrite the documentation in place.
+    :param input_dir: The root of the documentation tree.
+    :param version_name: The name of the version of the documentation, mostly used for confluence naming. Usually
+                         develop or main.
+    :param rule_set: The rules to run on each doc.
+    :param const_macros: A table of const value macros.
+    :param function_macros: A table of function macros which take 0 or more strings as args and returns a string.
+    :return: True if successful.
+    """
+    context = _process_docs(input_dir, input_dir, rule_set, const_macros, function_macros, version_name)
+    logging.info(f"Validating...")
+    valid = True
+    for doc in context.documents.values():
+        if not doc.unchanged:
+            valid = False
+            s = f"Document {doc.input_path} would require changes to fit the style.\n"
+            s += "    " + "\n    ".join(doc.changes.split("\n"))
+            logging.warning(s)
+    logging.info(f"Complete.")
+    return valid

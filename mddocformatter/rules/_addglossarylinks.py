@@ -34,6 +34,12 @@ def _is_inside_markdown_link(index: int, pointer: int, document: Document) -> in
     return -1
 
 
+def has_glossary_link(term: str, section: str, link: str, document: Document) -> bool:
+    """:return: True if the document already has a link for a given glossary term (case-insensitive)."""
+    markdown_link = format_markdown_link(term, link, section)
+    return markdown_link.lower() in document.contents.lower()
+
+
 @document_rule("*.md")
 def add_glossary_links(context: ProcessingContext, document: Document):
     """
@@ -44,26 +50,27 @@ def add_glossary_links(context: ProcessingContext, document: Document):
     :param document: The document being processed.
     """
     from .. import loading
-
     glossary = context.get_document_by_name("glossary.md")
     if not glossary:
         logger.warning("Cannot find a glossary.md file, therefore skipping add_glossary_links.")
-    else:
+    elif glossary is not document:  # we don't want to modify the glossary to link to itself.
         glossary_data = loading.process_glossary(glossary.original_contents)
         link = form_relative_link(document, glossary)
         for term, section in glossary_data:
-            pointer = 0
-            while pointer < len(document.contents):
-                match_index = document.contents[pointer:].lower().find(term)
-                if match_index < 0:
-                    break
-                else:
-                    match_index += pointer
-                    link_index = _is_inside_markdown_link(match_index, pointer, document)
-                    if link_index >= 0:
-                        pointer = link_index
+            if not has_glossary_link(term, section, link, document):
+                pointer = 0
+                while pointer < len(document.contents):
+                    match_index = document.contents[pointer:].lower().find(term)
+                    if match_index >= 0:
+                        match_index += pointer
+                        link_index = _is_inside_markdown_link(match_index, pointer, document)
+                        if link_index >= 0:
+                            pointer = link_index
+                        else:
+                            start, end = match_index, match_index + len(term)
+                            markdown_link = format_markdown_link(document.contents[start:end], link, section)
+                            document.contents = replace_span(document, start, end, markdown_link)
+                            break
                     else:
-                        start, end = match_index, match_index + len(term)
-                        markdown_link = format_markdown_link(document.contents[start:end], link, section)
-                        document.contents = replace_span(document, start, end, markdown_link)
                         break
+

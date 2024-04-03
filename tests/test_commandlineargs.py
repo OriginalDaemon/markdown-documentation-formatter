@@ -55,7 +55,7 @@ class TestCommandLineArgs(unittest.TestCase):
         with patch.object(Path, "exists", new=_exists):
             with patch.object(Path, "is_dir") as mock_is_dir:
                 mock_is_dir.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, verbose = cli.parse_args(
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
                     ["--input", "input_file_path", "--output", "output_file_path"]
                 )
                 self.assertEqual(Path("output_file_path"), output_dir)
@@ -75,7 +75,7 @@ class TestCommandLineArgs(unittest.TestCase):
             with patch.object(Path, "is_dir") as mock_isdir:
                 mock_exists.return_value = True
                 mock_isdir.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, verbose = cli.parse_args(
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
                     ["--input", "input_file_path", "--output", "output_file_path"]
                 )
                 self.assertIsInstance(input_dir, Path)
@@ -86,20 +86,21 @@ class TestCommandLineArgs(unittest.TestCase):
             with patch.object(Path, "is_dir") as mock_isdir:
                 mock_exists.return_value = True
                 mock_isdir.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, verbose = cli.parse_args(
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
                     ["--input", "input_file_path", "--output", "output_file_path"]
                 )
                 self.assertListEqual(rules.GetRulesForStyle(DeploymentStyle.CONFLUENCE), rule_set)
                 self.assertDictEqual({}, const_macros)
                 self.assertDictEqual({}, function_macros)
                 self.assertEqual("", version_name)
+                self.assertFalse(validate)
 
     def test_github_style(self):
         with patch.object(Path, "exists") as mock_exists:
             with patch.object(Path, "is_dir") as mock_isdir:
                 mock_exists.return_value = True
                 mock_isdir.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, verbose = cli.parse_args(
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
                     ["--input", "input_file_path", "--output", "output_file_path", "--style", "github"]
                 )
                 self.assertListEqual(rules.GetRulesForStyle(DeploymentStyle.GITHUB), rule_set)
@@ -136,7 +137,7 @@ class TestCommandLineArgs(unittest.TestCase):
         with patch.object(Path, "exists") as mock_exists:
             with patch.object(Path, "is_dir", new=_is_dir):
                 mock_exists.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, verbose = cli.parse_args(
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
                     [
                         "--input",
                         "input_file_path",
@@ -160,7 +161,7 @@ class TestCommandLineArgs(unittest.TestCase):
         with patch.object(Path, "exists") as mock_exists:
             with patch.object(Path, "is_dir", new=_is_dir):
                 mock_exists.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, verbose = cli.parse_args(
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
                     [
                         "--input",
                         "input_file_path",
@@ -180,7 +181,7 @@ class TestCommandLineArgs(unittest.TestCase):
         with patch.object(Path, "exists") as mock_exists:
             with patch.object(Path, "is_dir", new=_is_dir):
                 mock_exists.return_value = True
-                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, verbose = cli.parse_args(
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
                     [
                         "--input",
                         "input_file_path",
@@ -230,6 +231,36 @@ class TestCommandLineArgs(unittest.TestCase):
                             "consts_file_path.py",
                         ]
                     )
+
+    def test_validate_error_with_output(self):
+        with patch.object(Path, "exists") as mock_exists:
+            with patch.object(Path, "is_dir") as mock_isdir:
+                with self.assertRaises(SystemExit):
+                    mock_exists.return_value = True
+                    mock_isdir.return_value = True
+                    cli.parse_args(
+                        [
+                            "--input",
+                            "input_file_path",
+                            "--output",
+                            "output_file_path",
+                            "--validate"
+                        ]
+                    )
+
+    def test_validate_option(self):
+        with patch.object(Path, "exists") as mock_exists:
+            with patch.object(Path, "is_dir") as mock_isdir:
+                mock_exists.return_value = True
+                mock_isdir.return_value = True
+                input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = cli.parse_args(
+                    [
+                        "--input",
+                        "input_file_path",
+                        "--validate"
+                    ]
+                )
+                self.assertTrue(validate)
 
 
 if __name__ == "__main__":

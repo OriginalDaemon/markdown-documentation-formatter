@@ -7,6 +7,7 @@ from typing import Tuple, List, Dict
 from mddocformatter import (
     DeploymentStyle,
     process_docs,
+    validate_docs,
     loading,
     rules,
     DocumentRule,
@@ -38,7 +39,7 @@ def _deploymentStyle(value):
 
 def parse_args(
     argv: list | None = None,
-) -> Tuple[pathlib.Path, pathlib.Path, List[DocumentRule], Dict[str, str], Dict[str, FunctionMacro], str, bool]:
+) -> Tuple[pathlib.Path, pathlib.Path, List[DocumentRule], Dict[str, str], Dict[str, FunctionMacro], str, bool, bool]:
     """
     Parse the command line args.
     :param argv: argument list from the command line.
@@ -47,6 +48,7 @@ def parse_args(
                - output relative_path
     """
     parser = argparse.ArgumentParser(description="Convert basic obj/collada/fbx/usd meshes to Gr2")
+    group = parser.add_mutually_exclusive_group()
     parser.add_argument(
         "--input",
         "-i",
@@ -54,11 +56,13 @@ def parse_args(
         help="Path to the directory containing the docs to prep.",
         type=lambda x: _process_path_arg(x, "input", True, True),
     )
-    parser.add_argument(
+    group.add_argument(
         "--output",
         "-o",
-        required=True,
-        help="Directory to output the prepared documentation to. Can be same as input if you want to overwrite.",
+        required=False,
+        default=None,
+        help="Directory to output the prepared documentation to. If not given, the output results will override the "
+             "input instead.",
         type=lambda x: _process_path_arg(x, "output", False, True),
     )
     parser.add_argument(
@@ -84,7 +88,14 @@ def parse_args(
         type=lambda x: _process_path_arg(x, "rules", True, False),
     )
     parser.add_argument("--version", default="", help="The name to use for the version of the documentation.")
-    parser.add_argument("--verbose", "-v", default="", help="Use verbose logging", action="store_true")
+    group.add_argument(
+        "--validate",
+        required=False,
+        default=False,
+        help="Processes the documentation in a validation mode. This will report if the documentation already meats "
+             "the requirements for the given style or not.",
+        action="store_true")
+    parser.add_argument("--verbose", "-v", default=False, help="Use verbose logging", action="store_true")
     args = parser.parse_args(argv)
 
     rule_set = rules.GetRulesForStyle(args.style)
@@ -100,15 +111,22 @@ def parse_args(
     if args.macros is not None:
         const_macros, function_macros = loading.load_macros_from_py_file(args.macros)
 
-    return args.input, args.output, rule_set, const_macros, function_macros, args.version, args.verbose
+    output = args.output
+    if args.output is None:
+        output = args.input
+
+    return args.input, output, rule_set, const_macros, function_macros, args.version, args.validate, args.verbose
 
 
-def run(argv: list | None = None):
+def run(argv: list | None = None) -> bool:
     """
     Takes a folder of documentation and prepares it for deployment in various ways.
     """
-    input_dir, output_dir, rule_set, const_macros, function_macros, version_name, verbose = parse_args(argv)
+    input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = parse_args(argv)
     logging.basicConfig(
         format="%(asctime)s %(name)-12s %(levelname)-8s %(message)s", level=logging.DEBUG if verbose else logging.INFO
     )
-    process_docs(input_dir, output_dir, rule_set, const_macros, function_macros, version_name)
+    if not validate:
+        return process_docs(input_dir, output_dir, rule_set, const_macros, function_macros, version_name)
+    else:
+        return validate_docs(input_dir, rule_set, const_macros, function_macros, version_name)
