@@ -5,7 +5,7 @@ jobs:
     name: Package the test documentation using the confluence style and upload it as an artifact.
     steps:
       - uses: actions/checkout@v4
-      - uses: originaldaemon/markdown-documentation-formatter@v1
+      - uses: originaldaemon/markdown-documentation-formatter@beta
         with:
           input: "./docs"
           output: "./processed_confluence"
@@ -19,7 +19,7 @@ jobs:
     name: Package the test documentation using the github style and upload it as an artifact.
     steps:
       - uses: actions/checkout@v4
-      - uses: originaldaemon/markdown-documentation-formatter@v1
+      - uses: originaldaemon/markdown-documentation-formatter@beta
         with:
           input: "./docs"
           output: "./processed_github"
