@@ -133,7 +133,7 @@ def _process_docs(
         context.add_document(file_path)
     docs_list = "\n\t".join([str(x) for x in context.documents.keys()])
     logging.info(f"Files found: \n    {docs_list}")
-    logging.info(f"Processing...")
+    logging.info("Processing...")
     context.run()
     return context
 
@@ -160,9 +160,9 @@ def process_docs(
     :return: True if successful.
     """
     context = _process_docs(input_dir, output_dir, rule_set, const_macros, function_macros, version_name)
-    logging.info(f"Saving...")
+    logging.info("Saving...")
     context.save()
-    logging.info(f"Complete.")
+    logging.info("Complete.")
     return True
 
 
@@ -185,7 +185,7 @@ def validate_docs(
     :return: True if successful.
     """
     context = _process_docs(input_dir, input_dir, rule_set, const_macros, function_macros, version_name)
-    logging.info(f"Validating...")
+    logging.info("Validating...")
     valid = True
     for doc in context.documents.values():
         if not doc.unchanged:
@@ -193,5 +193,5 @@ def validate_docs(
             s = f"Document {doc.input_path} would require changes to fit the style.\n"
             s += "    " + "\n    ".join(doc.changes.split("\n"))
             logging.warning(s)
-    logging.info(f"Complete.")
+    logging.info("Complete.")
     return valid
