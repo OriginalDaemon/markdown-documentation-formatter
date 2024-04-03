@@ -28,7 +28,7 @@ class Document(object):
             b = self.contents.split("\n")
             result = ""
             for text in difflib.unified_diff(a, b):
-                if text[:3] not in ('+++', '---', '@@ '):
+                if text[:3] not in ("+++", "---", "@@ "):
                     result += text + "\n"
             return result
         else:
