@@ -43,7 +43,7 @@ runs:
     - name: Process documentation with mddocformatter
       shell: bash
       run: mddocformatter --input ${{ inputs.input }} --output ${{ inputs.output }} --style ${{ inputs.style }} ${{ inputs.args }}
-      if: ${{ inputs.validate == 'true' }}
+      if: ${{ inputs.validate == 'false' }}
     - name: Validate documentation with mddocformatter
       shell: bash
       run: mddocformatter --input ${{ inputs.input }} --validate --style ${{ inputs.style }} ${{ inputs.args }}
