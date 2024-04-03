@@ -33,8 +33,8 @@ def path_is_confluence_style(root_directory: Path, input_path: Path, version_nam
 
     if len(rel_path.parts) > 1:
         return (
-            input_path.name == f"{rel_path.parts[-2]}.md" or
-            re.match(f"{rel_path.parts[-2]} - .+.md", input_path.name) is not None
+            input_path.name == f"{rel_path.parts[-2]}.md"
+            or re.match(f"{rel_path.parts[-2]} - .+.md", input_path.name) is not None
         )
     else:
         return not version_name or re.match(f"{version_name} - .+.md", input_path.name) is not None
