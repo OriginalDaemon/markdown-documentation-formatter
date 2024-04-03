@@ -95,12 +95,12 @@ class TestRenameUniquelyForConfluence(unittest.TestCase):
         root_directory = Path(__file__).parent / "data" / "docs"
         version_name = ""
         cases = [
-            root_directory / f"readme.md",
-            root_directory / f"other.md",
-            root_directory / f"sub dir" / f"sub dir.md",
-            root_directory / f"sub dir" / f"sub dir - other.md",
-            root_directory / f"sub dir" / f"sub dir - sub dir 2" / f"sub dir - sub dir 2.md",
-            root_directory / f"sub dir" / f"sub dir - sub dir 2" / f"sub dir - sub dir 2 - other.md",
+            root_directory / "readme.md",
+            root_directory / "other.md",
+            root_directory / "sub dir" / "sub dir.md",
+            root_directory / "sub dir" / "sub dir - other.md",
+            root_directory / "sub dir" / "sub dir - sub dir 2" / "sub dir - sub dir 2.md",
+            root_directory / "sub dir" / "sub dir - sub dir 2" / "sub dir - sub dir 2 - other.md",
         ]
         for i, case in enumerate(cases):
             with self.subTest(i=i):
@@ -110,12 +110,12 @@ class TestRenameUniquelyForConfluence(unittest.TestCase):
         root_directory = Path(__file__).parent / "data" / "docs"
         version_name = "testing"
         cases = [
-            root_directory / f"readme.md",
-            root_directory / f"other.md",
-            root_directory / f"sub dir" / f"readme.md",
-            root_directory / f"sub dir" / f"other.md",
-            root_directory / f"sub dir" / f"sub dir 2" / f"readme.md",
-            root_directory / f"sub dir" / f"sub dir 2" / f"other.md",
+            root_directory / "readme.md",
+            root_directory / "other.md",
+            root_directory / "sub dir" / "readme.md",
+            root_directory / "sub dir" / "other.md",
+            root_directory / "sub dir" / "sub dir 2" / "readme.md",
+            root_directory / "sub dir" / "sub dir 2" / "other.md",
         ]
         for i, case in enumerate(cases):
             with self.subTest(i=i):
@@ -125,10 +125,10 @@ class TestRenameUniquelyForConfluence(unittest.TestCase):
         root_directory = Path(__file__).parent / "data" / "docs"
         version_name = ""
         cases = [
-            root_directory / f"sub dir" / f"readme.md",
-            root_directory / f"sub dir" / f"other.md",
-            root_directory / f"sub dir" / f"sub dir 2" / f"readme.md",
-            root_directory / f"sub dir" / f"sub dir 2" / f"other.md",
+            root_directory / "sub dir" / "readme.md",
+            root_directory / "sub dir" / "other.md",
+            root_directory / "sub dir" / "sub dir 2" / "readme.md",
+            root_directory / "sub dir" / "sub dir 2" / "other.md",
         ]
         for i, case in enumerate(cases):
             with self.subTest(i=i):
