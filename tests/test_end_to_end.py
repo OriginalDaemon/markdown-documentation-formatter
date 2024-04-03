@@ -62,6 +62,20 @@ class TestEndToEnd(unittest.TestCase):
             result = cli.run(["--input", tempdir, "--style", "confluence", "--validate"])
             self.assertTrue(result)
 
+    def test_validate_test_docs_github_style_fail(self):
+        result = cli.run(
+            [
+                "--input",
+                str(Path(__file__).parent / "data" / "docs"),
+                "--style",
+                "github",
+                "--version",
+                "test",
+                "--validate",
+            ]
+        )
+        self.assertFalse(result)
+
     def test_process_test_docs_github_style(self):
         with tempfile.TemporaryDirectory(prefix="mddocformatter") as tempdir:
             cli.run(
