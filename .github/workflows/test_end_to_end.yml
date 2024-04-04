@@ -1,19 +1,19 @@
 name: Test End to End
 on:
-  push:
-    tags:
-      - 'v[0-9]'
-      - 'latest'
-      - 'stable'
+  workflow_run:
+    workflows: ['Update Latest Tag']
+    types:
+      - completed
 jobs:
   process_docs_confluence_style:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Test Formatting - Confluence Style.
     steps:
       - uses: actions/checkout@v4
       - name: Process test/docs in confluence style
         id: process-confluence
-        uses: originaldaemon/markdown-documentation-formatter@${{ github.ref_name }}
+        uses: originaldaemon/markdown-documentation-formatter@latest
         with:
           input: './tests/data/docs'
           output: './tests/data/processed_confluence'
@@ -21,7 +21,7 @@ jobs:
           args: '--version test'
       - name: Validate result
         if: steps.process-confluence.outcome == 'success'
-        uses: originaldaemon/markdown-documentation-formatter@${{ github.ref_name }}
+        uses: originaldaemon/markdown-documentation-formatter@$latest
         with:
           input: ${{ steps.process-confluence.outputs.processed }}
           validate: true
@@ -35,12 +35,13 @@ jobs:
           path: ${{ steps.process-confluence.outputs.processed }}
   process_docs_github_style:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Test Formatting - GitHub Style.
     steps:
       - uses: actions/checkout@v4
       - name: Process test/docs in github style
         id: process-github
-        uses: originaldaemon/markdown-documentation-formatter@${{ github.ref }}
+        uses: originaldaemon/markdown-documentation-formatter@$latest
         with:
           input: './tests/data/docs'
           output: './tests/data/processed_github'
@@ -48,7 +49,7 @@ jobs:
           args: '--version test'
       - name: Validate result
         if: steps.process-github.outcome == 'success'
-        uses: originaldaemon/markdown-documentation-formatter@${{ github.ref }}
+        uses: originaldaemon/markdown-documentation-formatter@$latest
         with:
           input: ${{ steps.process-github.outputs.processed }}
           validate: true

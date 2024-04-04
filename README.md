@@ -37,7 +37,7 @@ You can run using "python -m mddocformatter ..." or using the mddocformatter.exe
 
 You can run this as a github action using the following:
 
-```
+```yml
 name: Test End to End
 on:
   push
@@ -71,3 +71,13 @@ You must set the "input", "output" and "style" input options. You can also suppl
 | --verbose | -v    | False   | Use verbose logging.                                                                                                                                                                                   |
 
 There is also a "validate" option which, when set to "true", can be used ot see if documents are already in the desired style, which can be useful if you just want to work in that style directly and use this action to ensure it.
+
+### Versions
+
+There are multiple versions available:
+
+| Tag    | Description                                              |
+|--------|----------------------------------------------------------|
+| latest | The latest update to the main branch, not always stable. |
+| stable | Always references the latest release.                    |          
+| v1     | Version 1 the markdown-documentation-formatter           |                                                
