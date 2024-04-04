@@ -36,6 +36,7 @@ per-file-ignores = [
 max-line-length = 120
 
 [tool.coverage.run]
+relative_files = true
 omit = [
     "tests/*",
     ".venv/*",
