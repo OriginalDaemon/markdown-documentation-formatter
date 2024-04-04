@@ -4,7 +4,7 @@ from . import loading as loading
 from .rules import DocumentRule, document_rule
 from ._processing import ProcessingSettings, ProcessingContext, process_docs, validate_docs
 from ._document import Document
-from ._consts import DeploymentStyle, FunctionMacro
+from ._consts import DeploymentStyle, FunctionMacro, Passes
 
 
 _logging.getLogger(__name__).addHandler(_logging.NullHandler())

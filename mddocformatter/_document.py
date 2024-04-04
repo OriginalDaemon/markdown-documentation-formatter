@@ -1,6 +1,7 @@
 import difflib
 
 from pathlib import Path
+from ._consts import N_CONTEXT_LINES_IN_DIFF
 
 
 class Document(object):
@@ -11,48 +12,31 @@ class Document(object):
         """
         self.input_path: Path = input_path
         self.target_path: Path = Path(input_path)
-        self.original_contents: str = data
+        self._original_contents: str = data
         self.contents: str = data
 
     @property
-    def unchanged(self):
+    def unchanged(self) -> bool:
         """
         :return: True if the document is currently unchanged compared to its original contents.
         """
-        return self.original_contents == self.contents
+        return self._original_contents == self.contents
 
-    @property
-    def changes(self):
+    def changes(self, n_context_lines=N_CONTEXT_LINES_IN_DIFF) -> str:
+        """
+        Get a description of the changes between the original content when the document was loaded and the current
+        contents. If there are no changes, this function returns an empty string.
+        :param n_context_lines: The number of "context" lines to show above+below a change.
+        :return: A string describing the difference between the original document contents and the current contents.
+        """
+
         if not self.unchanged:
-            a = self.original_contents.split("\n")
+            a = self._original_contents.split("\n")
             b = self.contents.split("\n")
             result = ""
-            for text in difflib.unified_diff(a, b):
+            for text in difflib.unified_diff(a, b, n=n_context_lines):
                 if text[:3] not in ("+++", "---", "@@ "):
                     result += text + "\n"
             return result
         else:
             return ""
-
-
-def load_document(path: Path):
-    """
-    Load a document from a given path.
-    :param path: The path to the file to load.
-    """
-    if not path.exists():
-        raise FileNotFoundError(f"{path} not found.")
-    if path.is_dir():
-        raise IsADirectoryError(f"{path} is a directory, expected a file relative_path.")
-    with open(path, "r") as fd:
-        return Document(path, fd.read())
-
-
-def save_document(document: Document):
-    """
-    Save the contents of a Document to the set target_path.
-    :param document: The document to save.
-    """
-    document.target_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(document.target_path, "w+") as fd:
-        fd.write(document.contents)

@@ -4,8 +4,31 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 from types import ModuleType
 from .rules import DocumentRule
-from ._document import load_document
+from ._document import Document
 from ._consts import FunctionMacro, regex_glossary_synonyms
+
+
+def load_document(path: Path):
+    """
+    Load a document from a given path.
+    :param path: The path to the file to load.
+    """
+    if not path.exists():
+        raise FileNotFoundError(f"{path} not found.")
+    if path.is_dir():
+        raise IsADirectoryError(f"{path} is a directory, expected a file relative_path.")
+    with open(path, "r") as fd:
+        return Document(path, fd.read())
+
+
+def save_document(document: Document):  # pragma: no cover
+    """
+    Save the contents of a Document to the set target_path.
+    :param document: The document to save.
+    """
+    document.target_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(document.target_path, "w+") as fd:
+        fd.write(document.contents)
 
 
 def _import_module(module_name: str, module_contents) -> ModuleType:
@@ -89,6 +112,10 @@ def process_glossary(glossary: str) -> List[Tuple[str, str]]:
     The list is a tuple of: term/phrase, term subsection
     e.g. [(a term, #A Term), (synonym of a term, #A Term), ...]
     """
+    def extend_glossary_data(_glossary_data, _term, _section):
+        if _term.lower() not in [x[0] for x in _glossary_data]:
+            _glossary_data.append((_term.lower(), _section))
+
     glossary_data: List[Tuple[str, str]] = []
     lines = glossary.split("\n")
     for i in range(len(lines)):
@@ -96,16 +123,13 @@ def process_glossary(glossary: str) -> List[Tuple[str, str]]:
         if line.startswith("##"):
             term = line[len(line) - len(line.lstrip("#")) :].strip()
             section = term
-            glossary_data.append((term.lower(), section))
+            extend_glossary_data(glossary_data, term, section)
             for i in range(i + 1, len(lines)):
                 line = lines[i].strip()
                 match = re.search(regex_glossary_synonyms, line.lower())
-                if line.startswith("##"):
-                    i -= 1
-                    break
-                elif match:
+                if match:
                     for synonym in list(map(lambda x: x.strip(), match.group(1).split(","))):
-                        glossary_data.append((synonym.lower(), section))
+                        extend_glossary_data(glossary_data, synonym, section)
                     break
 
     glossary_data.sort(key=lambda x: len(x[0]), reverse=True)

@@ -45,15 +45,18 @@ def form_relative_link(source_document: Document, linked_document: Document) -> 
     ).replace("\\", "/")
 
 
-def replace_span(document: Document, start: int, end: int, replacement: str) -> str:
+def replace_span(document: Document, start: int, end: int, replacement: str) -> Tuple[str, int]:
     """
     Replace a span of text in a document's contents - does not alter the document itself.
     :param document: The document contents to replace a span of.
     :param start: The start of the span.
     :param end: The end of the span.
     :param replacement: The string to replace the span with - does not need to be the same length.
+    :return: tuple of:
+               - The new string after the span has been replaced.
+               - The new "end" position of the span.
     """
-    return "".join([document.contents[:start], replacement, document.contents[end:]])
+    return "".join([document.contents[:start], replacement, document.contents[end:]]), start + len(replacement)
 
 
 def get_next_match(document: Document, pointer: int, regex: re.Pattern) -> Tuple[re.Match | None, int, int]:

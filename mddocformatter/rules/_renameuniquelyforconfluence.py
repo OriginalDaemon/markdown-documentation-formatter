@@ -62,9 +62,7 @@ def rename_uniquely_for_confluence(context: ProcessingContext, document: Documen
             parts.insert(0, context.settings.version_name)
         parts = [" - ".join(parts[: i + 1]) for i in range(len(parts))]
         parent_dir = document.input_path.parents[0].parts[-1]
-        if not parts:
-            filename = document.input_path.name
-        elif document.input_path.name.lower() == "readme.md" or document.input_path.name == f"{parent_dir}.md":
+        if document.input_path.name.lower() == "readme.md" or document.input_path.name == f"{parent_dir}.md":
             filename = parts[-1] + ".md"
         else:
             filename = f"{parts[-1]} - {document.input_path.name}"

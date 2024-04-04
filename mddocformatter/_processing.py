@@ -3,7 +3,8 @@ from __future__ import annotations
 import logging
 
 from ._consts import Passes, FunctionMacro
-from ._document import Document, load_document, save_document
+from ._document import Document
+from .loading import load_document, save_document
 from typing import Dict, List, TYPE_CHECKING
 from pathlib import Path
 
@@ -75,25 +76,42 @@ class ProcessingContext(object):
             doc = self.documents.get(self.settings.root_directory / path, None)
         return doc
 
+    # noinspection DuplicatedCode
     def get_document_by_name(self, name: str) -> Document | None:
         """
         Find a document by name. Finds the first one, which isn't guaranteed to be unique.
         :param name: The name of the document.
         :return: The document or None if no document with the given name could be found.
         """
-        # try exact match
+        # fullname, case sensitive
+        for doc in self.documents.values():
+            if name == doc.input_path.name:
+                return doc
+        # fullname, case insensitive
+        for doc in self.documents.values():
+            if name == doc.input_path.name.lower():
+                return doc
+        # sans extension, case sensitive
+        for doc in self.documents.values():
+            if name == doc.input_path.stem:
+                return doc
+        # sans extension, case insensitive
+        for doc in self.documents.values():
+            if name == doc.input_path.stem.lower():
+                return doc
+        # drop the confluence style prefix, fullname, case sensitive
         for doc in self.documents.values():
             if name == doc.input_path.name.split(" - ")[-1]:
                 return doc
-        # try case insensitive
+        # drop the confluence style prefix, fullname, case insensitive
         for doc in self.documents.values():
             if name == doc.input_path.name.lower().split(" - ")[-1]:
                 return doc
-        # try match without extension
+        # drop the confluence style prefix, sans extension, case sensitive
         for doc in self.documents.values():
             if name == doc.input_path.stem.split(" - ")[-1]:
                 return doc
-        # try match without extension, with case insensitivity
+        # drop the confluence style prefix, sans extension, case insensitive
         for doc in self.documents.values():
             if name == doc.input_path.stem.lower().split(" - ")[-1]:
                 return doc
@@ -191,7 +209,7 @@ def validate_docs(
         if not doc.unchanged:
             valid = False
             s = f"Document {doc.input_path} would require changes to fit the style.\n"
-            s += "    " + "\n    ".join(doc.changes.split("\n"))
+            s += "    " + "\n    ".join(doc.changes().split("\n"))
             logging.warning(s)
     logging.info("Complete.")
     return valid

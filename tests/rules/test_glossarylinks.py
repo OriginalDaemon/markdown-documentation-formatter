@@ -84,6 +84,25 @@ class TestGlossaryLinks(unittest.TestCase):
         rules.add_glossary_links(context, doc)
         self.assertEqual("Here is an [Example](<../glossary data/Glossary.md#Example>) of something.", doc.contents)
 
+    def test_term_followed_by_link(self):
+        context = self._createContext()
+        doc = Document(
+            Path(context.settings.root_directory / "test" / "test.md"),
+            "Example[Example](<www.google.com>)",
+        )
+        rules.add_glossary_links(context, doc)
+        self.assertEqual(
+            "[Example](<../glossary data/glossary.md#Example>)[Example](<www.google.com>)",
+            doc.contents,
+        )
+
+    def test_no_glossary(self):
+        settings = ProcessingSettings(root_directory=Path(__file__).parent / "data" / "docs")
+        context = ProcessingContext(settings)
+        doc = Document(Path(context.settings.root_directory / "test" / "test.md"), "")
+        with self.assertLogs("mddocformatter", level="WARNING"):
+            rules.add_glossary_links(context, doc)
+
 
 if __name__ == "__main__":
     unittest.main()

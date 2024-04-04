@@ -8,7 +8,7 @@ from mddocformatter import DeploymentStyle
 from unittest.mock import patch
 
 
-class TestCommandLineArgs(unittest.TestCase):
+class TestCLI(unittest.TestCase):
     def test_no_args(self):
         with self.assertRaises(SystemExit):
             cli.parse_args([])
@@ -255,6 +255,41 @@ class TestCommandLineArgs(unittest.TestCase):
                     cli.parse_args(["--input", "input_file_path", "--validate"])
                 )
                 self.assertTrue(validate)
+
+    def test_run_process(self):
+        with patch.object(Path, "exists") as mock_exists:
+            with patch.object(Path, "is_dir") as mock_is_dir:
+                with patch.object(cli, "process_docs") as mock_process_docs:
+                    with patch.object(cli, "validate_docs") as mock_validate_docs:
+                        mock_exists.return_value = True
+                        mock_is_dir.return_value = True
+                        mock_process_docs.return_value = True
+                        mock_validate_docs.return_value = True
+                        cli.run([
+                            "--input",
+                            "input_file_path",
+                            "--output",
+                            "output_file_path"
+                        ])
+                        mock_process_docs.assert_called_once()
+                        mock_validate_docs.assert_not_called()
+
+    def test_run_validate(self):
+        with patch.object(Path, "exists") as mock_exists:
+            with patch.object(Path, "is_dir") as mock_is_dir:
+                with patch.object(cli, "process_docs") as mock_process_docs:
+                    with patch.object(cli, "validate_docs") as mock_validate_docs:
+                        mock_exists.return_value = True
+                        mock_is_dir.return_value = True
+                        mock_process_docs.return_value = True
+                        mock_validate_docs.return_value = True
+                        cli.run([
+                            "--input",
+                            "input_file_path",
+                            "--validate"
+                        ])
+                        mock_process_docs.assert_not_called()
+                        mock_validate_docs.assert_called_once()
 
 
 if __name__ == "__main__":

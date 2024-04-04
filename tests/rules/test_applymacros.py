@@ -133,6 +133,13 @@ class TestApplyMacros(unittest.TestCase):
         rules.apply_macros(context, doc)
         self.assertEqual("Example without any macros in it.", doc.contents)
 
+    def test_macro_value_short_than_macro_name(self):
+        settings = ProcessingSettings(const_macros={"a_long_macro_name_with_short_value": "s"})
+        context = ProcessingContext(settings)
+        doc = Document(Path("test.md"), "${a_long_macro_name_with_short_value}${a_long_macro_name_with_short_value}")
+        rules.apply_macros(context, doc)
+        self.assertEqual("ss", doc.contents)
+
 
 if __name__ == "__main__":
     unittest.main()

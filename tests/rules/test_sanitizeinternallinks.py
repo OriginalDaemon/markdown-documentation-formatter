@@ -97,7 +97,7 @@ class TestSanitizeInternalLinks(unittest.TestCase):
 
     def test_linked_document_not_found(self):
         case = (
-            "Replicate a bug found by providing a link to a non existant file"
+            "Replicate a bug found by providing a link to a non existent file"
             "[link](<sub dir/file does not exist.md#sub - section>)"
             "followed by another one"
             "[link](<sub dir/file does not exist.md#sub - section>"
@@ -122,6 +122,22 @@ class TestSanitizeInternalLinks(unittest.TestCase):
                 context, doc = self._create_test_data(case)
                 rules.santize_internal_links(context, doc)
                 self.assertEqual(expected, doc.contents)
+
+    def test_santiized_link_is_shorter_so_following_link_is_missed(self):
+        # testing a case that showed up as a bug. After removing the unsanitary special characters, like '%20', the
+        # string being replaced is much shorter, so when we start looking for more links we start where the replaced
+        # text ended instead of where it's new replacement ends.
+        case = (
+            "[%20%20%20](sub%20dir/relative%20-%20file.md#sub%20-%20section)\n"
+            "[%20%20%20](sub%20dir/relative%20-%20file.md#sub%20-%20section)\n"
+        )
+        expected = (
+            "[%20%20%20](<../sub dir/relative - file.md#sub - section>)\n"
+            "[%20%20%20](<../sub dir/relative - file.md#sub - section>)\n"
+        )
+        context, doc = self._create_test_data(case)
+        rules.santize_internal_links(context, doc)
+        self.assertEqual(expected, doc.contents)
 
 
 if __name__ == "__main__":

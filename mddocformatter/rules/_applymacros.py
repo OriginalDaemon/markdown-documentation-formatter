@@ -26,7 +26,7 @@ def _replace_const_macros(context: ProcessingContext, document: Document):
         macroName = match.group(1)
         macro = context.settings.const_macros.get(macroName, None)
         if macro is not None:
-            document.contents = replace_span(document, start, end, context.settings.const_macros[macroName])
+            document.contents, _ = replace_span(document, start, end, context.settings.const_macros[macroName])
             pointer = start
         elif macro is None and context.settings.function_macros.get(macroName, None) is not None:
             logger.exception(
@@ -74,7 +74,8 @@ def _replace_function_macros(context: ProcessingContext, document: Document):
             args = _extract_args(match.group(2))
             value = _run_function_macro(context, macroName, args, match.group(0))
             if value is not None:
-                document.contents = replace_span(document, start, end, value)
+                document.contents, end = replace_span(document, start, end, value)
+                success = True
         elif macroName in context.settings.const_macros:
             logger.exception(
                 f"Exception encountered trying to resolve {match.group(0)} as {macroName} is not a function."

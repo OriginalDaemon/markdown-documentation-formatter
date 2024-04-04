@@ -55,7 +55,7 @@ def add_glossary_links(context: ProcessingContext, document: Document):
     if not glossary:
         logger.warning("Cannot find a glossary.md file, therefore skipping add_glossary_links.")
     elif glossary is not document:  # we don't want to modify the glossary to link to itself.
-        glossary_data = loading.process_glossary(glossary.original_contents)
+        glossary_data = loading.process_glossary(glossary._original_contents)
         link = form_relative_link(document, glossary)
         for term, section in glossary_data:
             if not has_glossary_link(term, section, link, document):
@@ -70,7 +70,7 @@ def add_glossary_links(context: ProcessingContext, document: Document):
                         else:
                             start, end = match_index, match_index + len(term)
                             markdown_link = format_markdown_link(document.contents[start:end], link, section)
-                            document.contents = replace_span(document, start, end, markdown_link)
+                            document.contents, pointer = replace_span(document, start, end, markdown_link)
                             break
                     else:
                         break

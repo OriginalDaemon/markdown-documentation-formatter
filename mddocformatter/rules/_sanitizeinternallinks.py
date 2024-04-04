@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import logging
 
 from urllib.parse import unquote
 from ._base import document_rule
@@ -12,6 +13,9 @@ from typing import Tuple, TYPE_CHECKING
 if TYPE_CHECKING:  # pragma: no cover
     from .._processing import ProcessingContext
     from .._document import Document
+
+
+logger = logging.getLogger(__name__)
 
 
 def _get_document_from_link(context: ProcessingContext, document: Document, link: str) -> Document | None:
@@ -36,7 +40,7 @@ def _get_next_link_match(document: Document, pointer: int) -> Tuple[bool, int, i
 def _process_section_reference(section: str, linked_document: Document):
     if section:
         # find the actual linked section and recreate teh section reference.
-        regex_section_part = unquote(section).replace("-", "[ -]")
+        regex_section_part = section.replace("-", "[ -]")
         section_regex = re.compile(r"#+\s*(" + regex_section_part + ")", re.IGNORECASE)
         for line in linked_document.contents.split("\n"):
             result = re.search(section_regex, line)
@@ -58,8 +62,9 @@ def santize_internal_links(context: ProcessingContext, document: Document):
         success, start, pointer, text, path, section = _get_next_link_match(document, pointer)
         if not success:
             break
-        linked_document = _get_document_from_link(context, document, unquote(path))
+        section, path = unquote(section), unquote(path)
+        linked_document = _get_document_from_link(context, document, path)
         if linked_document is not None:
             section = _process_section_reference(section, linked_document)
             reformatted_link = format_document_markdown_link(text, document, linked_document, section)
-            document.contents = replace_span(document, start, pointer, reformatted_link)
+            document.contents, pointer = replace_span(document, start, pointer, reformatted_link)
