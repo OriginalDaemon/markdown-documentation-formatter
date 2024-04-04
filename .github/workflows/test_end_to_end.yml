@@ -5,8 +5,9 @@ on:
     types:
       - completed
 jobs:
-  test_github_formatting:
+  format_test_docs_github_style:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Package the test documentation using the github style and upload it as an artifact.
     steps:
       - uses: actions/checkout@v4
@@ -30,8 +31,9 @@ jobs:
           style: 'github'
           validate: true
           args: '--version test'
-  test_confluence_formatting:
+  format_test_docs_confluence_style:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Package the test documentation using the confluence style and upload it as an artifact.
     steps:
       - uses: actions/checkout@v4
@@ -45,6 +47,17 @@ jobs:
           args: '--version test'
       - name: Upload processed as artifact
         uses: actions/upload-artifact@v4
+        with:
+          name: 'processed_confluence'
+          path: ${{ steps.process-confluence.outputs.processed }}
+  validate_test_docs_confluence_style:
+    runs-on: ubuntu-latest
+    needs: format_test_docs_confluence_style
+    name: Validate the documentation processed in format_test_docs_confluence_style.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dowwnload processed as artifact
+        uses: actions/download-artifact@v4
         with:
           name: 'processed_confluence'
           path: ${{ steps.process-confluence.outputs.processed }}
