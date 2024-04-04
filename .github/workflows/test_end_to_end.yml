@@ -8,7 +8,7 @@ jobs:
   format_test_docs_confluence_style:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    name: Package the test documentation using the confluence style and upload it as an artifact.
+    name: Format Docs - Confluence Style.
     outputs:
       processed: ${{ steps.process-confluence.outputs.processed }}
     steps:
@@ -26,17 +26,18 @@ jobs:
         with:
           name: 'processed_confluence'
           path: ${{ steps.process-confluence.outputs.processed }}
+      - name: Validate result
+        uses: originaldaemon/markdown-documentation-formatter@beta
+        with:
+          input: ${{ steps.process-confluence.outputs.processed }}
+          validate: true
+          style: 'confluence'
+          args: '--version test'
   validate_test_docs_confluence_style:
     runs-on: ubuntu-latest
     needs: format_test_docs_confluence_style
-    name: Validate the documentation processed in format_test_docs_confluence_style.
+    name: Validate Docs - Confluence Style
     steps:
-      - uses: actions/checkout@v4
-      - name: Download processed as artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: 'processed_confluence'
-          path: ${{ needs.format_test_docs_confluence_style.outputs.processed }}
       - name: Validate result
         uses: originaldaemon/markdown-documentation-formatter@beta
         with:
