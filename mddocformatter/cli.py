@@ -19,7 +19,7 @@ def _process_path_arg(path, arg_name, expect_exists=True, expect_dir=False):
     if not path:
         raise argparse.ArgumentTypeError("{}: value can't be blank.".format(arg_name))
 
-    path = pathlib.Path(path)
+    path = pathlib.Path(path).resolve()
     if expect_exists and not path.exists():
         raise argparse.ArgumentTypeError("{}: doesn't exist: {}".format(arg_name, path))
     if path.exists() and expect_dir != path.is_dir():
