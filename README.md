@@ -79,5 +79,5 @@ There are multiple versions available:
 | Tag    | Description                                              |
 |--------|----------------------------------------------------------|
 | latest | The latest update to the main branch, not always stable. |
-| stable | Always references the latest release.                    |          
+| stable | Always references the latest stable release.             |          
 | v1     | Version 1 the markdown-documentation-formatter           |                                                
