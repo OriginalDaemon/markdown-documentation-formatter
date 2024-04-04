@@ -58,7 +58,7 @@ class TestCLI(unittest.TestCase):
                 input_dir, output_dir, rule_set, const_macros, function_macros, version_name, validate, verbose = (
                     cli.parse_args(["--input", "input_file_path", "--output", "output_file_path"])
                 )
-                self.assertEqual(Path("output_file_path"), output_dir)
+                self.assertEqual(Path("output_file_path").resolve(), output_dir)
 
     def test_output_notadir(self):
         def _is_dir(v: Path):

@@ -95,13 +95,14 @@ class TestProcessing(unittest.TestCase):
         doc_path = root_dir / "doc.md"
         with patch.object(Path, "glob") as glob_mock:
             with patch("mddocformatter._processing.load_document") as load_document_mock:
-                load_document_mock.return_value = Document(doc_path)
-                glob_mock.return_value = [doc_path]
-                result = process_docs(
-                    input_dir=root_dir, output_dir=Path(__file__).parent / "data" / "processed", rule_set=[rule]
-                )
-                rule_func_mock.assert_called_once()
-                self.assertTrue(result)
+                with patch("mddocformatter._processing.save_document"):
+                    load_document_mock.return_value = Document(doc_path)
+                    glob_mock.return_value = [doc_path]
+                    result = process_docs(
+                        input_dir=root_dir, output_dir=Path(__file__).parent / "data" / "processed", rule_set=[rule]
+                    )
+                    rule_func_mock.assert_called_once()
+                    self.assertTrue(result)
 
     def test_validate_docs(self):
         rule_func_mock = MagicMock()
