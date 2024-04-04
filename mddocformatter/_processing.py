@@ -149,8 +149,8 @@ def _process_docs(
     logging.info(f"Discovering documentation in {input_dir}...")
     for file_path in input_dir.glob("**/*.*"):
         context.add_document(file_path)
-    docs_list = "\n\t".join([str(x) for x in context.documents.keys()])
-    logging.info(f"Files found: \n    {docs_list}")
+    docs_list = "\n    - ".join([str(x) for x in context.documents.keys()])
+    logging.info(f"Files found: \n    - {docs_list}")
     logging.info("Processing...")
     context.run()
     return context
@@ -211,5 +211,6 @@ def validate_docs(
             s = f"Document {doc.input_path} would require changes to fit the style.\n"
             s += "    " + "\n    ".join(doc.changes().split("\n"))
             logging.warning(s)
-    logging.info("Complete.")
+    status = "valid" if valid else "invalid"
+    logging.info(f"Complete. Documentation is {status}.")
     return valid
