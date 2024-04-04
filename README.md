@@ -80,4 +80,4 @@ There are multiple versions available:
 |--------|----------------------------------------------------------|
 | latest | The latest update to the main branch, not always stable. |
 | stable | Always references the latest stable release.             |          
-| v1     | Version 1 the markdown-documentation-formatter           |                                                
+| v1     | Version 1 the markdown-documentation-formatter.          |                                                
