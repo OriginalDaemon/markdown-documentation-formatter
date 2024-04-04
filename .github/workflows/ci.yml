@@ -69,44 +69,25 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-      - name: install pytest-cov
-        run: pip install pytest pytest-cov pytest-subtests
       - name: install dependencies
         run: pip install -e .[test]
-      - name: run pytest --cov
+      - name: run pytest
         run: pytest
-  pytest-coverage:
-    needs: pytest
-    strategy:
-      matrix:
-        python-version: [ '3.11' ]
+  pytest_coverage:
     runs-on: ubuntu-latest
     env:
-      UNITTEST_END_TO_END: false
+      UNITTEST_END_TO_END: true
     steps:
       - uses: actions/checkout@v4.1.2
       - uses: actions/setup-python@v5.0.0
         with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
-      - name: install pytest-cov
-        run: pip install pytest pytest-cov pytest-subtests
+          python-version: 3.11
       - name: install dependencies
         run: pip install -e .[test]
       - name: run pytest --cov
         run: pytest --cov=mddocformatter --cov-report=xml
-      - name: Coveralls
-        uses: AndreMiras/coveralls-python-action@develop
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4.0.1
         with:
-          debug: true
-          parallel: true
-          flag-name: Unit Test
-  coveralls-finish:
-    needs: pytest-coverage
-    runs-on: ubuntu-latest
-    steps:
-    - name: Coveralls Finished
-      uses: AndreMiras/coveralls-python-action@develop
-      with:
-        parallel-finished: true
-        debug: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: OriginalDaemon/markdown-documentation-formatter
