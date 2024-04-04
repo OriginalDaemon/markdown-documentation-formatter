@@ -8,12 +8,11 @@ permissions:
 jobs:
   update_latest_tag:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.UPDATE_TAG_GITHUB_TOKEN }}
     steps:
       - name: 🏷️ Create/update tag
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.UPDATE_TAG_GITHUB_TOKEN }}
           script: |
             github.rest.git.createRef({
               owner: context.repo.owner,
