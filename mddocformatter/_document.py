@@ -16,6 +16,13 @@ class Document(object):
         self.contents: str = data
 
     @property
+    def original_contents(self) -> str:
+        """
+        :return: The contents as it was when the document was first loaded.
+        """
+        return self._original_contents
+
+    @property
     def unchanged(self) -> bool:
         """
         :return: True if the document is currently unchanged compared to its original contents.

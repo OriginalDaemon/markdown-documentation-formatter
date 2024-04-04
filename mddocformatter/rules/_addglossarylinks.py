@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import logging
 
-from .._consts import regex_markdown_link
+from .._consts import regex_markdown_link, Passes
 from ._base import document_rule
 from ._utils import form_relative_link, replace_span, format_markdown_link
 
@@ -40,7 +40,7 @@ def has_glossary_link(term: str, section: str, link: str, document: Document) ->
     return markdown_link.lower() in document.contents.lower()
 
 
-@document_rule("*.md")
+@document_rule("*.md", Passes.LINK_UPDATING)
 def add_glossary_links(context: ProcessingContext, document: Document):
     """
     Looks through a document for the first use of a word or phrase that is defined in the glossary. This can be either
@@ -55,7 +55,7 @@ def add_glossary_links(context: ProcessingContext, document: Document):
     if not glossary:
         logger.warning("Cannot find a glossary.md file, therefore skipping add_glossary_links.")
     elif glossary is not document:  # we don't want to modify the glossary to link to itself.
-        glossary_data = loading.process_glossary(glossary._original_contents)
+        glossary_data = loading.process_glossary(glossary.original_contents)
         link = form_relative_link(document, glossary)
         for term, section in glossary_data:
             if not has_glossary_link(term, section, link, document):

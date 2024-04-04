@@ -32,7 +32,7 @@ regex_const_macro = re.compile(r"\${([\w]+)}")
 regex_function_macro = re.compile(r"\${([\w]+)\(([\w\s,]*)\)}")
 regex_markdown_link = re.compile(r"\[(.+?)\]\([<]*(.+?)[>]*\)")
 regex_markdown_link_with_subsection = re.compile(r"\[(.+?)\]\([<]*(.+?[^>])#+(.*?)[>]*\)")
-regex_glossary_synonyms = re.compile(r"synonyms\: ([\w\s,]+)", re.IGNORECASE)
+regex_glossary_synonyms = re.compile(r"synonyms: ([\w\s,]+)", re.IGNORECASE)
 
 
 N_CONTEXT_LINES_IN_DIFF = 3
