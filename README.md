@@ -1,6 +1,6 @@
 # markdown-documentation-formatter
 
-![Coverage Status](https://coveralls.io/repos/github/OriginalDaemon/markdown-documentation-formatting/badge.svg?branch=main&service=github) ![CI](https://github.com/OriginalDaemon/markdown-documentation-processing/actions/workflows/ci.yml/badge.svg)
+![Coverage Status](https://coveralls.io/repos/github/OriginalDaemon/markdown-documentation-formatter/badge.svg?branch=main&service=github) ![CI](https://github.com/OriginalDaemon/markdown-documentation-processing/actions/workflows/ci.yml/badge.svg)
 
 A system to take product documentation, stored in branch in markdown, and process it in various ways to ready it for deployment. This allows you to automate various parts of documentation maintenance such as;
 
