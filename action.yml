@@ -22,7 +22,7 @@ inputs:
     default: 'false'
 outputs:
   processed:
-    description: 'The processed documentation.'
+    description: 'The processed documentation path.'
     value: ${{ inputs.output }}
 runs:
   using: 'composite'
