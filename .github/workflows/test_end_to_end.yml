@@ -5,32 +5,6 @@ on:
     types:
       - completed
 jobs:
-  format_test_docs_github_style:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    name: Package the test documentation using the github style and upload it as an artifact.
-    steps:
-      - uses: actions/checkout@v4
-      - name: Process test/docs in confluence style
-        id: process-github
-        uses: originaldaemon/markdown-documentation-formatter@beta
-        with:
-          input: './tests/data/docs'
-          output: './tests/data/processed_github'
-          style: 'github'
-          args: '--version test'
-      - name: Upload processed as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: 'processed_github'
-          path: ${{ steps.process-github.outputs.processed }}
-      - name: Validate result
-        uses: originaldaemon/markdown-documentation-formatter@beta
-        with:
-          input: ${{ steps.process-github.outputs.processed }}
-          style: 'github'
-          validate: true
-          args: '--version test'
   format_test_docs_confluence_style:
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
@@ -58,7 +32,7 @@ jobs:
     name: Validate the documentation processed in format_test_docs_confluence_style.
     steps:
       - uses: actions/checkout@v4
-      - name: Dowwnload processed as artifact
+      - name: Download processed as artifact
         uses: actions/download-artifact@v4
         with:
           name: 'processed_confluence'
