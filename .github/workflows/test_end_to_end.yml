@@ -8,7 +8,6 @@ on:
 jobs:
   process_docs_confluence_style:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Test Formatting - Confluence Style.
     steps:
       - uses: actions/checkout@v4
@@ -36,7 +35,6 @@ jobs:
           path: ${{ steps.process-confluence.outputs.processed }}
   process_docs_github_style:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Test Formatting - GitHub Style.
     steps:
       - uses: actions/checkout@v4
