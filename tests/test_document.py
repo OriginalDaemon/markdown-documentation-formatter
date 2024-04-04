@@ -1,8 +1,7 @@
 import unittest
 
-from unittest.mock import patch
 from pathlib import Path
-from mddocformatter import loading, Document
+from mddocformatter import Document
 
 
 class TestLoading(unittest.TestCase):
