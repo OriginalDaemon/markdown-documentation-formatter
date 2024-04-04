@@ -1,5 +1,8 @@
 name: 'Markdown Documentation Formatter'
-description: 'Formats product documentation written in markdown.'
+description: 'Processes in branch documentation into something for deployment to other platforms, like confluence.'
+branding:
+  icon: "align-left"
+  color: "purple"
 inputs:
   input:
     description: 'The location of the documentation within the repository (default: ./docs).'
