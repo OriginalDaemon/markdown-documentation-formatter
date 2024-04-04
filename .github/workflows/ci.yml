@@ -102,7 +102,7 @@ jobs:
           parallel: true
           flag-name: Unit Test
   coveralls-finish:
-    needs: test
+    needs: pytest-coverage
     runs-on: ubuntu-latest
     steps:
     - name: Coveralls Finished
