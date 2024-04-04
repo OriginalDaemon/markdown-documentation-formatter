@@ -49,12 +49,12 @@ class TestProcessing(unittest.TestCase):
         cases = [
             "test - sub dir - Doc.md",  # fullname, case sensitive
             "test - sub dir - doc.md",  # fullname, case insensitive
-            "test - sub dir - Doc",     # sans extension, case sensitive
-            "test - sub dir - doc",     # sans extension, case insensitive
-            "Doc.md",                   # drop the confluence style prefix, fullname, case sensitive
-            "doc.md",                   # drop the confluence style prefix, fullname, case insensitive
-            "Doc",                      # drop the confluence style prefix, sans extension, case sensitive
-            "doc",                      # drop the confluence style prefix, sans extension, case insensitive
+            "test - sub dir - Doc",  # sans extension, case sensitive
+            "test - sub dir - doc",  # sans extension, case insensitive
+            "Doc.md",  # drop the confluence style prefix, fullname, case sensitive
+            "doc.md",  # drop the confluence style prefix, fullname, case insensitive
+            "Doc",  # drop the confluence style prefix, sans extension, case sensitive
+            "doc",  # drop the confluence style prefix, sans extension, case insensitive
         ]
         for i, case in enumerate(cases):
             with self.subTest(i=i):
@@ -65,9 +65,7 @@ class TestProcessing(unittest.TestCase):
         rule = rules.DocumentRule(mock, "*.md", Passes.FINALIZE)
         root_dir = Path(__file__).parent / "data" / "docs"
         settings = ProcessingSettings(
-            root_directory=root_dir,
-            target_directory=Path(__file__).parent / "data" / "processed",
-            rule_set=[rule]
+            root_directory=root_dir, target_directory=Path(__file__).parent / "data" / "processed", rule_set=[rule]
         )
         context = ProcessingContext(settings)
         doc1, doc2 = Document(root_dir / "doc.md"), Document(root_dir / "image.png")
@@ -100,9 +98,7 @@ class TestProcessing(unittest.TestCase):
                 load_document_mock.return_value = Document(doc_path)
                 glob_mock.return_value = [doc_path]
                 result = process_docs(
-                    input_dir=root_dir,
-                    output_dir=Path(__file__).parent / "data" / "processed",
-                    rule_set=[rule]
+                    input_dir=root_dir, output_dir=Path(__file__).parent / "data" / "processed", rule_set=[rule]
                 )
                 rule_func_mock.assert_called_once()
                 self.assertTrue(result)
@@ -116,10 +112,7 @@ class TestProcessing(unittest.TestCase):
             with patch("mddocformatter._processing.load_document") as load_document_mock:
                 load_document_mock.return_value = Document(doc_path)
                 glob_mock.return_value = [doc_path]
-                result = validate_docs(
-                    input_dir=root_dir,
-                    rule_set=[rule]
-                )
+                result = validate_docs(input_dir=root_dir, rule_set=[rule])
                 rule_func_mock.assert_called_once()
                 self.assertTrue(result)
 
@@ -127,16 +120,14 @@ class TestProcessing(unittest.TestCase):
         @rules.document_rule("*.md")
         def rule(c: ProcessingContext, d: Document):
             d.contents += "hello world"
+
         root_dir = Path(__file__).parent / "data" / "docs"
         doc_path = root_dir / "doc.md"
         with patch.object(Path, "glob") as glob_mock:
             with patch("mddocformatter._processing.load_document") as load_document_mock:
                 load_document_mock.return_value = Document(doc_path)
                 glob_mock.return_value = [doc_path]
-                result = validate_docs(
-                    input_dir=root_dir,
-                    rule_set=[rule]
-                )
+                result = validate_docs(input_dir=root_dir, rule_set=[rule])
                 self.assertFalse(result)
 
 
