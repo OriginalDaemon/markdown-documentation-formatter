@@ -18,6 +18,11 @@ jobs:
           output: './tests/data/processed_github'
           style: 'github'
           args: '--version test'
+      - name: Upload processed as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'processed_github'
+          path: ${{ steps.process-github.outputs.processed }}
       - name: Validate result
         uses: originaldaemon/markdown-documentation-formatter@beta
         with:
@@ -25,11 +30,6 @@ jobs:
           style: 'github'
           validate: true
           args: '--version test'
-      - name: Upload processed as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: 'processed_github'
-          path: ${{ steps.process-github.outputs.processed }}
   test_confluence_formatting:
     runs-on: ubuntu-latest
     name: Package the test documentation using the confluence style and upload it as an artifact.
@@ -43,6 +43,11 @@ jobs:
           output: './tests/data/processed_confluence'
           style: 'confluence'
           args: '--version test'
+      - name: Upload processed as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'processed_confluence'
+          path: ${{ steps.process-confluence.outputs.processed }}
       - name: Validate result
         uses: originaldaemon/markdown-documentation-formatter@beta
         with:
@@ -50,8 +55,3 @@ jobs:
           validate: true
           style: 'confluence'
           args: '--version test'
-      - name: Upload processed as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: 'processed_confluence'
-          path: ${{ steps.process-confluence.outputs.processed }}
