@@ -81,7 +81,7 @@ jobs:
           parallel: true
           flag-name: python-${{ matrix.python-version }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          base-path: ./mddocformatter
+          base-path: mddocformatter
       - name: Upload coverage results as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -95,4 +95,4 @@ jobs:
         with:
           parallel-finished: true
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          base-path: ./mddocformatter
+          base-path: mddocformatter
