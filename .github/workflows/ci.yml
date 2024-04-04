@@ -74,6 +74,26 @@ jobs:
       - name: install dependencies
         run: pip install -e .[test]
       - name: run pytest --cov
+        run: pytest
+  pytest-coverage:
+    needs: pytest
+    strategy:
+      matrix:
+        python-version: [ '3.11' ]
+    runs-on: ubuntu-latest
+    env:
+      UNITTEST_END_TO_END: false
+    steps:
+      - uses: actions/checkout@v4.1.2
+      - uses: actions/setup-python@v5.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+      - name: install pytest-cov
+        run: pip install pytest pytest-cov pytest-subtests
+      - name: install dependencies
+        run: pip install -e .[test]
+      - name: run pytest --cov
         run: pytest --cov=mddocformatter --cov-report=xml
       - name: upload coverage data to coveralls
         uses: coverallsapp/github-action@v2.2.3
@@ -87,7 +107,7 @@ jobs:
           name: coverage-${{ matrix.python-version }}
           path: coverage.xml
   coveralls-finish:
-    needs: pytest
+    needs: pytest-coverage
     runs-on: ubuntu-latest
     steps:
       - uses: coverallsapp/github-action@v2.2.3
