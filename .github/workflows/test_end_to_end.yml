@@ -1,9 +1,10 @@
 name: Test End to End
 on:
-  workflow_run:
-    workflows: ['Update Beta Tag']
-    types:
-      - completed
+  push:
+    tags:
+      - 'v[0-9]'
+      - 'latest'
+      - 'stable'
 jobs:
   process_docs_confluence_style:
     runs-on: ubuntu-latest
@@ -13,7 +14,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Process test/docs in confluence style
         id: process-confluence
-        uses: originaldaemon/markdown-documentation-formatter@beta
+        uses: originaldaemon/markdown-documentation-formatter@${{ github.ref_name }}"
         with:
           input: './tests/data/docs'
           output: './tests/data/processed_confluence'
@@ -21,7 +22,7 @@ jobs:
           args: '--version test'
       - name: Validate result
         if: steps.process-confluence.outcome == 'success'
-        uses: originaldaemon/markdown-documentation-formatter@beta
+        uses: originaldaemon/markdown-documentation-formatter@${{ github.ref_name }}"
         with:
           input: ${{ steps.process-confluence.outputs.processed }}
           validate: true
@@ -41,7 +42,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Process test/docs in github style
         id: process-github
-        uses: originaldaemon/markdown-documentation-formatter@beta
+        uses: originaldaemon/markdown-documentation-formatter@${{ github.ref_name }}"
         with:
           input: './tests/data/docs'
           output: './tests/data/processed_github'
@@ -49,7 +50,7 @@ jobs:
           args: '--version test'
       - name: Validate result
         if: steps.process-github.outcome == 'success'
-        uses: originaldaemon/markdown-documentation-formatter@beta
+        uses: originaldaemon/markdown-documentation-formatter@${{ github.ref_name }}"
         with:
           input: ${{ steps.process-github.outputs.processed }}
           validate: true

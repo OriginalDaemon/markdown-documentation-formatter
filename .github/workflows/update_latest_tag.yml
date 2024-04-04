@@ -1,4 +1,4 @@
-name: Update Beta Tag
+name: Update Latest Tag
 on:
   push:
     branches:
@@ -6,7 +6,7 @@ on:
 permissions:
   contents: write
 jobs:
-  update_beta_tag:
+  update_latest_tag:
     runs-on: ubuntu-latest
     steps:
       - name: 🏷️ Create/update tag
@@ -16,14 +16,14 @@ jobs:
             github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: 'refs/tags/beta',
+              ref: 'refs/tags/latest',
               sha: context.sha
             }).catch(err => {
               if (err.status !== 422) throw err;
               github.rest.git.updateRef({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                ref: 'tags/beta',
+                ref: 'tags/latest',
                 sha: context.sha
               });
             })
