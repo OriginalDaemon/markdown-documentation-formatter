@@ -112,6 +112,7 @@ def process_glossary(glossary: str) -> List[Tuple[str, str]]:
     The list is a tuple of: term/phrase, term subsection
     e.g. [(a term, #A Term), (synonym of a term, #A Term), ...]
     """
+
     def extend_glossary_data(_glossary_data, _term, _section):
         if _term.lower() not in [x[0] for x in _glossary_data]:
             _glossary_data.append((_term.lower(), _section))

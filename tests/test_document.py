@@ -19,43 +19,18 @@ class TestLoading(unittest.TestCase):
         self.assertFalse(doc.unchanged)
 
     def test_document_changes_removed(self):
-        doc = Document(
-            Path(),
-            "Line 1\n"
-            "Line 2\n"
-            "Line 3\n"
-        )
-        doc.contents = (
-            "Line 1\n"
-            "Line 3\n"
-        )
+        doc = Document(Path(), "Line 1\n" "Line 2\n" "Line 3\n")
+        doc.contents = "Line 1\n" "Line 3\n"
         self.assertEqual("-Line 2\n", doc.changes(0))
 
     def test_document_changes_added(self):
-        doc = Document(
-            Path(),
-            "Line 1\n"
-            "Line 3\n"
-        )
-        doc.contents = (
-            "Line 1\n"
-            "Line 2\n"
-            "Line 3\n"
-        )
+        doc = Document(Path(), "Line 1\n" "Line 3\n")
+        doc.contents = "Line 1\n" "Line 2\n" "Line 3\n"
         self.assertEqual("+Line 2\n", doc.changes(0))
 
     def test_document_changes_modified(self):
-        doc = Document(
-            Path(),
-            "Line 1\n"
-            "Line 2\n"
-            "Line 3\n"
-        )
-        doc.contents = (
-            "Line 1\n"
-            "Line 5\n"
-            "Line 3\n"
-        )
+        doc = Document(Path(), "Line 1\n" "Line 2\n" "Line 3\n")
+        doc.contents = "Line 1\n" "Line 5\n" "Line 3\n"
         self.assertEqual("-Line 2\n+Line 5\n", doc.changes(0))
 
 

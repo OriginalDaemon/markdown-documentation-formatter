@@ -265,12 +265,7 @@ class TestCLI(unittest.TestCase):
                         mock_is_dir.return_value = True
                         mock_process_docs.return_value = True
                         mock_validate_docs.return_value = True
-                        cli.run([
-                            "--input",
-                            "input_file_path",
-                            "--output",
-                            "output_file_path"
-                        ])
+                        cli.run(["--input", "input_file_path", "--output", "output_file_path"])
                         mock_process_docs.assert_called_once()
                         mock_validate_docs.assert_not_called()
 
@@ -283,11 +278,7 @@ class TestCLI(unittest.TestCase):
                         mock_is_dir.return_value = True
                         mock_process_docs.return_value = True
                         mock_validate_docs.return_value = True
-                        cli.run([
-                            "--input",
-                            "input_file_path",
-                            "--validate"
-                        ])
+                        cli.run(["--input", "input_file_path", "--validate"])
                         mock_process_docs.assert_not_called()
                         mock_validate_docs.assert_called_once()
 
