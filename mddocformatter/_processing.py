@@ -179,6 +179,8 @@ def process_docs(
     """
     context = _process_docs(input_dir, output_dir, rule_set, const_macros, function_macros, version_name)
     logging.info("Saving...")
+    docs_list = "\n    - ".join([str(x.target_path) for x in context.documents.values()])
+    logging.info(f"Saving documents: \n    - {docs_list}")
     context.save()
     logging.info("Complete.")
     return True
