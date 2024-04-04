@@ -1,9 +1,5 @@
 name: Test End to End
 on:
-  workflow_run:
-    workflows: ['Update Beta Tag']
-    types:
-      - completed
   push:
     tags:
       - 'v[0-9]'
