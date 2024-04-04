@@ -49,7 +49,7 @@ jobs:
           args: '--version test'
       - name: Validate result
         if: steps.process-github.outcome == 'success'
-        uses: originaldaemon/markdown-documentation-formatter@$latest
+        uses: originaldaemon/markdown-documentation-formatter@latest
         with:
           input: ${{ steps.process-github.outputs.processed }}
           validate: true
